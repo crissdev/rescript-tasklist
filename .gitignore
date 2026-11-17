@@ -28,3 +28,8 @@ dist-ssr
 .bsb.lock
 .merlin
 *.res.mjs
+
+
+# APM dependencies
+apm_modules/
+.agents/skills/react-best-practices
