@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="An interactive feature map based on the Task List app description."
+    />
+    <title>Task List — Feature map</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #222b27;
+        --muted: #64716b;
+        --line: #e2e8e3;
+        --paper: #f7f8f4;
+        --surface: #fff;
+        --green: #23734f;
+        --green-soft: #eaf4ed;
+        --red: #a74b43;
+        --red-soft: #fbefed;
+        --shadow: 0 12px 30px rgb(34 43 39 / 6%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 2% 0%, rgb(221 237 225 / 55%), transparent 34rem),
+          var(--paper);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 14px;
+        color: var(--green);
+        font-size: 0.75rem;
+        font-weight: 750;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow-mark {
+        display: inline-grid;
+        width: 23px;
+        height: 23px;
+        place-items: center;
+        border-radius: 7px;
+        background: var(--green);
+        color: white;
+        font-size: 0.72rem;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 6vw, 4.1rem);
+        font-weight: 680;
+        letter-spacing: -0.065em;
+        line-height: 1.05;
+      }
+
+      .intro {
+        max-width: 650px;
+        margin: 17px 0 0;
+        color: var(--muted);
+        font-size: 1.03rem;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 30px 0 22px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgb(255 255 255 / 80%);
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .filter-button {
+        padding: 8px 12px;
+        border: 0;
+        border-radius: 9px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 0.87rem;
+        font-weight: 650;
+        transition: background 150ms ease, color 150ms ease;
+      }
+
+      .filter-button:hover {
+        background: #f0f3ef;
+        color: var(--ink);
+      }
+
+      .filter-button[aria-pressed="true"] {
+        background: var(--ink);
+        color: white;
+      }
+
+      .search-wrap {
+        position: relative;
+        flex: 1 1 220px;
+        max-width: 300px;
+      }
+
+      .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        color: #78847e;
+        font-size: 1rem;
+        transform: translateY(-52%);
+        pointer-events: none;
+      }
+
+      .search {
+        width: 100%;
+        padding: 9px 12px 9px 35px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        outline: none;
+        background: #fff;
+        color: var(--ink);
+        font-size: 0.88rem;
+      }
+
+      .search:focus {
+        border-color: #83b399;
+        box-shadow: 0 0 0 3px rgb(35 115 79 / 10%);
+      }
+
+      .map {
+        display: grid;
+        gap: 18px;
+      }
+
+      .group {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .group-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .group-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .group-symbol {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 11px;
+        font-size: 1rem;
+        font-weight: 800;
+      }
+
+      .in-scope .group-symbol {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .out-scope .group-symbol {
+        background: var(--red-soft);
+        color: var(--red);
+      }
+
+      .group h2 {
+        margin: 0;
+        font-size: 1.13rem;
+        font-weight: 720;
+        letter-spacing: -0.025em;
+      }
+
+      .group-subtitle {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .count {
+        flex: 0 0 auto;
+        padding: 5px 9px;
+        border-radius: 99px;
+        background: #f1f3f0;
+        color: #59645f;
+        font-size: 0.76rem;
+        font-weight: 700;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 11px;
+        padding: 18px;
+      }
+
+      .feature {
+        min-width: 0;
+      }
+
+      .feature-button {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        min-height: 114px;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #fff;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+        transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+      }
+
+      .feature-button:hover {
+        border-color: #bdcfc2;
+        background: #fcfdfb;
+        transform: translateY(-1px);
+      }
+
+      .feature-button[aria-expanded="true"] {
+        border-color: #8db79c;
+        background: #f8fbf8;
+      }
+
+      .out-scope .feature-button[aria-expanded="true"] {
+        border-color: #d3a39e;
+        background: #fdf9f8;
+      }
+
+      .feature-number {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 9px;
+        background: #f0f4f0;
+        color: #506159;
+        font-size: 0.73rem;
+        font-weight: 750;
+      }
+
+      .out-scope .feature-number {
+        background: #f8efed;
+        color: #91534c;
+      }
+
+      .feature-copy {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .feature-title {
+        display: block;
+        margin: 1px 0 5px;
+        font-size: 0.91rem;
+        font-weight: 720;
+        letter-spacing: -0.015em;
+      }
+
+      .feature-summary {
+        display: block;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
+
+      .feature-detail {
+        display: block;
+        margin-top: 11px;
+        padding-top: 10px;
+        border-top: 1px solid var(--line);
+        color: #46534c;
+        font-size: 0.78rem;
+        line-height: 1.5;
+      }
+
+      .expand-mark {
+        flex: 0 0 auto;
+        margin: 2px 0 0 auto;
+        color: #7b8880;
+        font-size: 0.88rem;
+        transition: transform 150ms ease;
+      }
+
+      .feature-button[aria-expanded="true"] .expand-mark {
+        transform: rotate(45deg);
+      }
+
+      .feature[hidden],
+      .group[hidden] {
+        display: none;
+      }
+
+      .empty-state {
+        display: none;
+        padding: 26px;
+        border: 1px dashed #cfd8d1;
+        border-radius: 14px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .empty-state.visible {
+        display: block;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 17px;
+        color: #77827c;
+        font-size: 0.76rem;
+      }
+
+      @media (max-width: 800px) {
+        .feature-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          width: min(100% - 24px, 1120px);
+          padding-top: 30px;
+        }
+
+        .toolbar {
+          align-items: stretch;
+        }
+
+        .search-wrap {
+          max-width: none;
+        }
+
+        .group-heading {
+          padding: 16px;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+          gap: 8px;
+          padding: 12px;
+        }
+
+        .feature-button {
+          min-height: 98px;
+        }
+
+        .footer {
+          flex-direction: column;
+          gap: 3px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <p class="eyebrow"><span class="eyebrow-mark">T</span> Product map</p>
+        <h1>Task List</h1>
+        <p class="intro">
+          A clear view of what the task board includes — and what the app description explicitly leaves out.
+          Select a feature to see its details.
+        </p>
+      </header>
+
+      <div class="toolbar" aria-label="Feature map controls">
+        <div class="filters" role="group" aria-label="Filter by scope">
+          <button class="filter-button" type="button" data-filter="all" aria-pressed="true">All features</button>
+          <button class="filter-button" type="button" data-filter="in" aria-pressed="false">In scope</button>
+          <button class="filter-button" type="button" data-filter="out" aria-pressed="false">Out of scope</button>
+        </div>
+        <label class="search-wrap">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input class="search" type="search" placeholder="Find a feature..." aria-label="Find a feature" />
+        </label>
+      </div>
+
+      <div class="map" id="feature-map">
+        <section class="group in-scope" data-group="in" aria-labelledby="in-title">
+          <div class="group-heading">
+            <div class="group-label">
+              <span class="group-symbol" aria-hidden="true">✓</span>
+              <div>
+                <h2 id="in-title">In scope</h2>
+                <p class="group-subtitle">Included in the Task List experience</p>
+              </div>
+            </div>
+            <span class="count" data-count="in">10 features</span>
+          </div>
+          <div class="feature-grid">
+            <article class="feature" data-search="default board three columns to do in progress done">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">01</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Default three-column board</span>
+                  <span class="feature-summary">A board starts with To Do, In Progress, and Done.</span>
+                  <span class="feature-detail" hidden>The application provides a default board with these three task statuses, arranged as a board view.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="columns statuses unique no two columns share status">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">02</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Unique column statuses</span>
+                  <span class="feature-summary">Each board column represents a distinct status.</span>
+                  <span class="feature-detail" hidden>No two columns on a board can share the same status.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="add additional columns later status">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">03</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Additional columns</span>
+                  <span class="feature-summary">More columns can be added later.</span>
+                  <span class="feature-detail" hidden>The feature description says that columns beyond the initial three can be added later.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="task status todo in-progress done workflow left to right">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">04</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Task status progression</span>
+                  <span class="feature-summary">Tasks move from To Do to In Progress to Done.</span>
+                  <span class="feature-detail" hidden>The task model describes the progression as todo → in-progress → done; the board normally moves left to right.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="change move task status drag drop edit">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">05</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Change a task’s status</span>
+                  <span class="feature-summary">Move a task by drag-and-drop or edit its status.</span>
+                  <span class="feature-detail" hidden>Both ways of changing status are described: moving a task between columns, or editing the task and changing its status.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="choose select available boards displayed board name">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">06</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Choose an available board</span>
+                  <span class="feature-summary">Select which available board to display.</span>
+                  <span class="feature-detail" hidden>Boards have a name for identification, and users can choose an available board to view.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="normal default card style title small card">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">07</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Normal card style</span>
+                  <span class="feature-summary">Compact task cards show as little as possible: the title.</span>
+                  <span class="feature-detail" hidden>The normal/default card style is a small card that displays the task title.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="relaxed card style description rows larger">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">08</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Relaxed card style</span>
+                  <span class="feature-summary">Larger cards show 2–3 rows from the description.</span>
+                  <span class="feature-detail" hidden>Users can switch to the relaxed style to see more of the task description on each card.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="choose switch card style normal default relaxed">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">09</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Choose a card style</span>
+                  <span class="feature-summary">Switch between normal/default and relaxed cards.</span>
+                  <span class="feature-detail" hidden>The description says users should have a way to choose between the two card styles.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="task model id title description created date status modified date">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">10</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Task details and dates</span>
+                  <span class="feature-summary">Tasks have an ID, title, description, status, and dates.</span>
+                  <span class="feature-detail" hidden>The model lists id, title, description, created_date, status, and modified_date for each task.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+          </div>
+        </section>
+
+        <section class="group out-scope" data-group="out" aria-labelledby="out-title">
+          <div class="group-heading">
+            <div class="group-label">
+              <span class="group-symbol" aria-hidden="true">−</span>
+              <div>
+                <h2 id="out-title">Out of scope</h2>
+                <p class="group-subtitle">Explicitly excluded from this application description</p>
+              </div>
+            </div>
+            <span class="count" data-count="out">10 features</span>
+          </div>
+          <div class="feature-grid">
+            <article class="feature" data-search="authentication authorization access control">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">01</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Authentication and authorization</span>
+                  <span class="feature-summary">Identity and permission checks are excluded.</span>
+                  <span class="feature-detail" hidden>The out-of-scope list excludes authentication or authorization checks.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="track who creates changes status creator">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">02</span>
+                <span class="feature-copy">
+                  <span class="feature-title">User attribution</span>
+                  <span class="feature-summary">The app won’t track who creates or changes a task’s status.</span>
+                  <span class="feature-detail" hidden>Tracking the person who creates a task or changes its status is explicitly excluded.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="history audit trail task moves status changes">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">03</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Task status history</span>
+                  <span class="feature-summary">No history of status changes as a task moves.</span>
+                  <span class="feature-detail" hidden>Keeping a history of a task as it moves from one status to another is excluded.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="rich text markdown html description formatting">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">04</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Rich-text descriptions</span>
+                  <span class="feature-summary">Markdown and HTML descriptions are excluded.</span>
+                  <span class="feature-detail" hidden>The task description will not support rich text, including Markdown or HTML.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="attachments images documents files tasks">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">05</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Task attachments</span>
+                  <span class="feature-summary">No images, documents, or other attachments.</span>
+                  <span class="feature-detail" hidden>Attachments of any kind to tasks are listed as out of scope.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="time zone timezone automatic translation ui">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">06</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Automatic time-zone translation</span>
+                  <span class="feature-summary">No automatic time-zone support in the UI.</span>
+                  <span class="feature-detail" hidden>Time-zone support with automatic translation in the interface is excluded.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="internationalization localization languages translation">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">07</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Internationalization</span>
+                  <span class="feature-summary">Internationalization and localization are excluded.</span>
+                  <span class="feature-detail" hidden>The description explicitly excludes internationalization or localization.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="multiple boards open visible simultaneously">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">08</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Multiple boards at once</span>
+                  <span class="feature-summary">Only one board can be open/visible at a time.</span>
+                  <span class="feature-detail" hidden>Having multiple boards open or visible at the same time is excluded.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="defining custom boards configure columns board name">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">09</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Define custom boards</span>
+                  <span class="feature-summary">Listed as out of scope in the description.</span>
+                  <span class="feature-detail" hidden>The description’s Out of scope section excludes defining custom boards.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+            <article class="feature" data-search="custom task status define status">
+              <button class="feature-button" type="button" aria-expanded="false">
+                <span class="feature-number">10</span>
+                <span class="feature-copy">
+                  <span class="feature-title">Define custom task statuses</span>
+                  <span class="feature-summary">Creating custom task statuses is excluded.</span>
+                  <span class="feature-detail" hidden>The description’s Out of scope section excludes defining a custom task status.</span>
+                </span>
+                <span class="expand-mark" aria-hidden="true">＋</span>
+              </button>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <div class="empty-state" role="status">No features match your search.</div>
+      <footer class="footer">
+        <span>Based on <code>docs/APP_DESCRIPTION.md</code></span>
+        <span>Select a feature card to expand its description</span>
+      </footer>
+    </main>
+    <script>
+      const filterButtons = [...document.querySelectorAll("[data-filter]")];
+      const groups = [...document.querySelectorAll("[data-group]")];
+      const features = [...document.querySelectorAll(".feature")];
+      const searchInput = document.querySelector(".search");
+      const emptyState = document.querySelector(".empty-state");
+      let activeFilter = "all";
+
+      function updateFeatures() {
+        const query = searchInput.value.trim().toLocaleLowerCase();
+        let visibleTotal = 0;
+
+        groups.forEach((group) => {
+          const groupMatchesFilter = activeFilter === "all" || group.dataset.group === activeFilter;
+          let visibleInGroup = 0;
+
+          group.querySelectorAll(".feature").forEach((feature) => {
+            const matchesSearch = !query || feature.textContent.toLocaleLowerCase().includes(query) ||
+              feature.dataset.search.includes(query);
+            const visible = groupMatchesFilter && matchesSearch;
+            feature.hidden = !visible;
+            if (visible) {
+              visibleInGroup += 1;
+              visibleTotal += 1;
+            }
+          });
+
+          group.hidden = !groupMatchesFilter || visibleInGroup === 0;
+        });
+
+        emptyState.classList.toggle("visible", visibleTotal === 0);
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          filterButtons.forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+          updateFeatures();
+        });
+      });
+
+      searchInput.addEventListener("input", updateFeatures);
+
+      document.querySelectorAll(".feature-button").forEach((button) => {
+        button.addEventListener("click", () => {
+          const isExpanded = button.getAttribute("aria-expanded") === "true";
+          button.setAttribute("aria-expanded", String(!isExpanded));
+          button.querySelector(".feature-detail").hidden = isExpanded;
+        });
+      });
+    </script>
+  </body>
+</html>
