@@ -19,6 +19,11 @@ and run `nvm install` without a version argument so NVM installs the repository-
 again. If the `nvm` command itself is unavailable, stop and report that NVM is not loaded or installed instead of
 silently using a different Node.js version.
 
+### Package manager
+
+- This project uses [Bun](https://bun.sh) to manage dependencies; `bun.lock` is the lockfile.
+- Use `bun install`, `bun add` and `bun remove` to manage dependencies, and `bun run <script>` to run `package.json` scripts.
+
 ## Documentation
 
 ### References
@@ -32,7 +37,7 @@ silently using a different Node.js version.
 
 - Use documentation matching the installed dependency versions.
 - Do not assume ReScript v11 syntax or configuration is compatible with v12.
-- Check the installed React version in `package.json` and the lockfile before using APIs introduced in newer React releases.
+- Check the installed React version in `package.json` and `bun.lock` before using APIs introduced in newer React releases.
 - Treat the latest React documentation as a reference for available features, not proof that those features are supported by the installed version or ReScript bindings.
 - Before implementing or modifying React functionality, consult the relevant official React documentation.
 - Use the React LLM documentation index to discover relevant pages. Read the specific documentation relevant to the APIs, hooks, components or concepts involved.
