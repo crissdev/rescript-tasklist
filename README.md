@@ -1,40 +1,58 @@
-# ReScript / Vite Starter Template
+# Task List
 
-- [Installation](../../README.md)
+A task list app built with ReScript and React.
 
-This is a Vite-based template with following setup:
+## Tech stack
 
-- [ReScript](https://rescript-lang.org) 11.0 with @rescript/react, [Core](https://github.com/rescript-association/rescript-core) and JSX v4
-- ES6 modules (ReScript code compiled to `.res.mjs` files)
-- Vite 6 with React Plugin (Fast Refresh)
-- Tailwind 4
+- [ReScript](https://rescript-lang.org) 12 with [@rescript/react](https://github.com/rescript-lang/rescript-react) 0.15 and JSX v4
+- [React](https://react.dev) 19
+- [Vite](https://vite.dev) 8 with the React plugin (Fast Refresh)
+- [Tailwind CSS](https://tailwindcss.com) 4
+- [Vitest](https://vitest.dev) 5 with Browser Mode (Playwright) and V8 coverage
+- [Bun](https://bun.sh) as the package manager
+
+ReScript compiles to ES modules next to the sources (`*.res.mjs`).
+
+## Getting started
+
+```sh
+nvm use
+bun install
+```
 
 ## Development
 
-Run ReScript in dev mode:
+Run the ReScript compiler in watch mode:
 
 ```sh
-npm run res:dev
+bun run res:dev
 ```
 
-In another tab, run the Vite dev server:
+In another terminal, start the Vite dev server:
 
 ```sh
-npm run dev
+bun run dev
 ```
 
-## Tips
+## Building
 
-### Fast Refresh & ReScript
+```sh
+bun run res:build
+bun run build     # outputs to dist/
+bun run preview   # serves the production build
+```
 
-Make sure to create interface files (`.resi`) for each `*.res` file.
+## Testing
 
-Fast Refresh requires you to **only export React components**, and it's easy to unintenionally export other values that will disable Fast Refresh (you will see a message in the browser console whenever this happens).
+Component tests are written in ReScript (`tests/**/*_test.res`) and run in Chromium with [Vitest Browser Mode](https://vitest.dev/guide/browser/).
 
-### Why are the generated `.res.mjs` files tracked in git?
+```sh
+bunx playwright install chromium   # once
+bun run test                       # or: bun run test:coverage
+```
 
-In ReScript, it's a good habit to keep track of the actual JS output the compiler emits. It allows quick sanity checking if we made any changes that actually have an impact on the resulting JS code (especially when doing major compiler upgrades, it's a good way to verify if production code will behave the same way as before the upgrade).
+See [`.agents/skills/component-testing/SKILL.md`](.agents/skills/component-testing/SKILL.md) for details.
 
-This will also make it easier for your Non-ReScript coworkers to read and understand the changes in Github PRs, and call you out when you are writing inefficient code.
+## Contributing
 
-If you want to opt-out, feel free to remove all compiled `.res.mjs` files within the `src` directory and add `src/**/*.res.mjs` in your `.gitignore`.
+Coding conventions, including the `.resi` rule that keeps Fast Refresh working, are in [`AGENTS.md`](AGENTS.md).

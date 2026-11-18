@@ -66,6 +66,11 @@ silently using a different Node.js version.
 - Follow current official React recommendations rather than relying on potentially outdated LLM knowledge.
 - Do not introduce React APIs or patterns without verifying their availability in the installed version and ReScript bindings.
 
+### Fast Refresh
+
+- Fast Refresh only works when a module exports nothing but React components. Exporting any other value disables it, and the browser console reports this.
+- Give every component module (`*.res`) an interface file (`.resi`) that exposes only its components. Entry points such as `src/Main.res` that export nothing do not need one.
+
 ## Testing
 
 - Component tests are ReScript files in `tests/**/*_test.res`. Run them with `bun run test`, which compiles ReScript first.
