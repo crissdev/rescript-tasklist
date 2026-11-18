@@ -102,3 +102,4 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
 - Work in the main checkout unless I specify otherwise. Do not implicitly create a new branch or work in a worktree.
+- Group related changes into separate, focused commits instead of one large commit. Each commit should contain one logical change together with its related documentation and tests, and commits should be ordered so that each one builds on the previous ones.
