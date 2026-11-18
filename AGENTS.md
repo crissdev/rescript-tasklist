@@ -102,9 +102,3 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
 - Work in the main checkout unless I specify otherwise. Do not implicitly create a new branch or work in a worktree.
-
-## Before completing a task
-
-- Report the files changed.
-- Report validation commands and their results.
-- Identify any unverified assumptions or missing bindings.
