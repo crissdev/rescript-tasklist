@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     container:
-      # Keep the tag in sync with the `playwright` version in package.json.
+      # Keep the tag in sync with the `playwright` and `@playwright/test` versions in package.json.
       image: mcr.microsoft.com/playwright:v1.65.1-noble
       options: --ipc=host --init
     steps:
@@ -46,3 +46,14 @@ jobs:
 
       - name: Test
         run: bun run test:coverage
+
+      - name: E2E tests
+        run: bun run test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

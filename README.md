@@ -70,7 +70,7 @@ bun run format:check   # fails if any file needs formatting
 
 ## Continuous integration
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the format check, production build and tests on pushes to `main` and on pull requests. [Dependabot](.github/dependabot.yml) checks Bun dependencies and GitHub Actions weekly.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the format check, production build, component tests and e2e tests on pushes to `main` and on pull requests. The Playwright HTML report is uploaded as an artifact when a run fails. [Dependabot](.github/dependabot.yml) checks Bun dependencies and GitHub Actions weekly.
 
 ## Contributing
 
