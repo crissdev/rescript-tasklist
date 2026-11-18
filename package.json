@@ -9,7 +9,6 @@
     "res:dev": "rescript watch",
     "format": "rescript format",
     "format:check": "rescript format --check",
-    "prepare": "lefthook install",
     "dev": "vite",
     "build": "rescript && vite build",
     "preview": "vite preview",
