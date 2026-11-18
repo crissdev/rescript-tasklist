@@ -37,8 +37,7 @@ bun run dev
 ## Building
 
 ```sh
-bun run res:build
-bun run build     # outputs to dist/
+bun run build     # compiles ReScript and outputs to dist/
 bun run preview   # serves the production build
 ```
 
