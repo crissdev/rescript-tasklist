@@ -61,6 +61,10 @@ bun run format:check   # fails if any file needs formatting
 
 `bun install` sets up a [Lefthook](https://lefthook.dev) pre-commit hook that formats staged `.res`/`.resi` files and re-stages them.
 
+## Continuous integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the format check, production build and tests on pushes to `main` and on pull requests.
+
 ## Contributing
 
 Coding conventions, including the `.resi` rule that keeps Fast Refresh working, are in [`AGENTS.md`](AGENTS.md).
