@@ -3,6 +3,17 @@
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
 - Work in the main checkout unless I specify otherwise. Do not implicitly create a new branch or work in a worktree.
 
+## Node.js version
+
+Before running project commands, change to the repository directory that contains `.nvmrc` and run `nvm use` there.
+Do not run `nvm use` from a parent directory or a different working copy; use the `.nvmrc` that belongs to the
+worktree where the project command will run.
+
+If `nvm use` reports that the version from `.nvmrc` is not installed, remain in the directory containing `.nvmrc`
+and run `nvm install` without a version argument so NVM installs the repository-pinned version. Then run `nvm use`
+again. If the `nvm` command itself is unavailable, stop and report that NVM is not loaded or installed instead of
+silently using a different Node.js version.
+
 ## Project
 
 - This project uses ReScript and React.
