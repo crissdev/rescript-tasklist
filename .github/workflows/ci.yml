@@ -15,6 +15,11 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    container:
+      # Keep the tag in sync with the `playwright` version in package.json.
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --ipc=host --init
     steps:
       - uses: actions/checkout@v7
 
@@ -34,9 +39,6 @@ jobs:
 
       - name: Build
         run: bun run build
-
-      - name: Install Playwright Chromium
-        run: bunx playwright install --with-deps chromium
 
       - name: Test
         run: bun run test:coverage
