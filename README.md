@@ -9,6 +9,7 @@ A task list app built with ReScript and React.
 - [Vite](https://vite.dev) 8 with the React plugin (Fast Refresh)
 - [Tailwind CSS](https://tailwindcss.com) 4
 - [Vitest](https://vitest.dev) 5 with Browser Mode (Playwright) and V8 coverage
+- [Playwright Test](https://playwright.dev) for end-to-end tests
 - [Bun](https://bun.sh) as the package manager
 
 ReScript compiles to ES modules next to the sources (`*.res.mjs`).
@@ -51,6 +52,12 @@ bun run test                       # or: bun run test:coverage
 ```
 
 See [`.agents/skills/component-testing/SKILL.md`](.agents/skills/component-testing/SKILL.md) for details.
+
+End-to-end tests are written in ReScript (`e2e/**/*_spec.res`) and run with [Playwright Test](https://playwright.dev) in Chromium against the production build served by `vite preview`. Bindings live in `e2e/bindings`.
+
+```sh
+bun run test:e2e   # builds the app, then runs the e2e specs
+```
 
 ## Formatting
 

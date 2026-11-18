@@ -75,6 +75,7 @@ silently using a different Node.js version.
 
 - Component tests are ReScript files in `tests/**/*_test.res`. Run them with `bun run test`, which compiles ReScript first.
 - Before writing, changing, debugging or extending tests or their bindings, load the `component-testing` skill. It covers the setup, the commands and the bindings.
+- E2E tests are ReScript files in `e2e/**/*_spec.res`, run by Playwright Test against the production build. Run them with `bun run test:e2e`, which compiles and builds first. Bindings live in `e2e/bindings/Playwright.res`; wrap every test body in `withFixtures` and call `test` directly from the spec so Playwright can read the fixtures and report the spec location.
 
 ### No tautological tests
 

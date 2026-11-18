@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "test": "rescript && vitest run",
     "test:watch": "vitest",
-    "test:coverage": "rescript && vitest run --coverage"
+    "test:coverage": "rescript && vitest run --coverage",
+    "test:e2e": "bun run build && playwright test"
   },
   "dependencies": {
     "@rescript/react": "^0.15.0",
@@ -23,6 +24,7 @@
     "rescript": "12.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/browser-playwright": "^5.1.1",

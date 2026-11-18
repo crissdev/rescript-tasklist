@@ -9,6 +9,11 @@
       "dir": "tests",
       "subdirs": true,
       "type": "dev"
+    },
+    {
+      "dir": "e2e",
+      "subdirs": true,
+      "type": "dev"
     }
   ],
   "package-specs": [

@@ -16,6 +16,12 @@ dist-ssr
 coverage
 .vitest
 
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -33,6 +39,7 @@ coverage
 .merlin
 src/**/*.res.mjs
 tests/**/*.res.mjs
+e2e/**/*.res.mjs
 
 
 # APM dependencies
