@@ -4,6 +4,12 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      # Both packages must resolve to the same Playwright version.
+      playwright:
+        patterns:
+          - playwright
+          - "@playwright/test"
 
   - package-ecosystem: github-actions
     directory: /
