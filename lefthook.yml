@@ -1,0 +1,7 @@
+# https://lefthook.dev/configuration/
+pre-commit:
+  jobs:
+    - name: rescript format
+      glob: "*.{res,resi}"
+      run: bunx rescript format {staged_files}
+      stage_fixed: true

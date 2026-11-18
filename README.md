@@ -52,6 +52,15 @@ bun run test                       # or: bun run test:coverage
 
 See [`.agents/skills/component-testing/SKILL.md`](.agents/skills/component-testing/SKILL.md) for details.
 
+## Formatting
+
+```sh
+bun run format         # formats all ReScript files
+bun run format:check   # fails if any file needs formatting
+```
+
+`bun install` sets up a [Lefthook](https://lefthook.dev) pre-commit hook that formats staged `.res`/`.resi` files and re-stages them.
+
 ## Contributing
 
 Coding conventions, including the `.resi` rule that keeps Fast Refresh working, are in [`AGENTS.md`](AGENTS.md).
