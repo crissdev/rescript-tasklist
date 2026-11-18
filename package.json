@@ -9,7 +9,10 @@
     "res:dev": "rescript watch",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "rescript && vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "rescript && vitest run --coverage"
   },
   "dependencies": {
     "@rescript/react": "^0.15.0",
@@ -20,7 +23,12 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/browser-playwright": "^5.1.1",
+    "@vitest/coverage-v8": "^5.1.1",
+    "playwright": "^1.65.1",
     "tailwindcss": "^4.3.5",
-    "vite": "^8.3.8"
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1",
+    "vitest-browser-react": "^2.3.0"
   }
 }

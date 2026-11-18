@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Vitest
+coverage
+.vitest
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,7 +31,8 @@ dist-ssr
 /lib/
 .bsb.lock
 .merlin
-*.res.mjs
+src/**/*.res.mjs
+tests/**/*.res.mjs
 
 
 # APM dependencies
