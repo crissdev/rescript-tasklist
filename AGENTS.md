@@ -68,6 +68,9 @@ silently using a different Node.js version.
 
 ## Testing
 
+- Component tests are ReScript files in `tests/**/*_test.res`. Run them with `bun run test`, which compiles ReScript first.
+- Before writing, changing, debugging or extending tests or their bindings, load the `component-testing` skill. It covers the setup, the commands and the bindings.
+
 ### No tautological tests
 
 Tests must verify an independent behavioral contract and fail when that contract is broken. Do not compare a value with itself, derive the expected result from the implementation under test, or mock the behavior under test and only assert its configured return value. Use explicit expected results or an independent oracle, and limit mocks to collaborators.
