@@ -99,6 +99,10 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 - Run relevant tests.
 - Verify JavaScript/TypeScript interoperability at integration boundaries.
 
+## GitHub issues
+
+- Before creating or triaging an issue, read [`docs/GITHUB_ISSUES.md`](docs/GITHUB_ISSUES.md) and apply its labels when the issue is created.
+
 ## Git
 
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
