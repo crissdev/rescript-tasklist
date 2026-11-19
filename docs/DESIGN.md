@@ -436,9 +436,9 @@ Title is required
 
 All dialogs use the native `<dialog>` element, opened as a modal (`showModal()`).
 
-- Dialog: `m-auto w-full rounded-dialog bg-surface p-dialog-inset text-ink shadow-dialog backdrop:bg-backdrop`.
-  Tailwind's preflight removes the browser's `margin: auto`, so `m-auto` centres it again. On viewports narrower than
-  the dialog, it keeps `--spacing-page` free on each side.
+- Dialog: `m-auto w-[calc(100%_-_2_*_var(--spacing-page))] rounded-dialog bg-surface p-dialog-inset text-ink shadow-dialog backdrop:bg-backdrop`.
+  Tailwind's preflight removes the browser's `margin: auto`, so `m-auto` centres it again. The calculated width
+  keeps at least `--spacing-page` free on each side, including on viewports narrower than the dialog.
 - Width is a dialog option with two sizes: `max-w-dialog` (default, create and edit) and `max-w-dialog-sm` (delete
   confirmation). A dialog uses exactly one of them.
 - Content: `flex flex-col gap-dialog-stack` with three parts:
