@@ -100,9 +100,9 @@ All colours are `oklch()`. Neutrals share hue 260 with low chroma.
 | Token                   | Value                   | Utility                  | Used for                                       |
 |-------------------------|-------------------------|--------------------------|------------------------------------------------|
 | `--color-primary`       | `oklch(51% 0.23 277)`   | `bg-primary`             | Primary button                                 |
-| `--color-primary-hover` | `oklch(45% 0.21 277)`   | `hover:bg-primary-hover` | Primary button hover                           |
+| `--color-primary-hover` | `oklch(45% 0.21 277)`   | `enabled:hover:bg-primary-hover` | Primary button hover                   |
 | `--color-danger`        | `oklch(55% 0.2 27)`     | `bg-danger`, `text-danger`, `border-danger` | Danger button, field error text and border |
-| `--color-danger-hover`  | `oklch(48% 0.18 27)`    | `hover:bg-danger-hover`  | Danger button hover                            |
+| `--color-danger-hover`  | `oklch(48% 0.18 27)`    | `enabled:hover:bg-danger-hover`  | Danger button hover                    |
 
 ### Status accents
 
@@ -304,6 +304,9 @@ The page shows the default board: a header with the board name and the board act
   share the width equally, from `16rem` up to about `26rem` each at `max-w-board`.
 - When the viewport is narrower than three minimum-width columns (`3 × 16rem + 2 × 1rem = 50rem` plus page padding),
   the columns keep their minimum width and the columns area scrolls horizontally. Columns are never stacked.
+- Because it can scroll, the columns area is a keyboard-reachable region: `role="region"` named after the board
+  (`aria-labelledby` pointing at the `h1`), `tabindex="0"` and the [focus ring](#focus-ring). Keyboard users can then
+  scroll it even when no column has a card.
 
 ## Columns
 
@@ -332,7 +335,7 @@ board use the same style. Normal is the default.
 
 Both styles share:
 
-- `rounded-card border border-border bg-surface px-card-x shadow-card text-left`.
+- `w-full rounded-card border border-border bg-surface px-card-x shadow-card text-left`.
 - The whole card is one focusable control that opens the **Edit task** dialog on click, <kbd>Enter</kbd> or
   <kbd>Space</kbd>. Its accessible name is the task title. The card is also the drag handle.
 - Title: `text-card-title text-ink line-clamp-card-title wrap-anywhere`. Long titles and long words wrap and are cut off
@@ -393,13 +396,14 @@ Shared by all variants:
 - Sentence-case labels, no icons required. Default `type` is `button`; the submit button of a form uses `submit`.
 - Every variant has a 1px border (transparent where it isn't visible), so all variants are the same height.
 
-| Variant   | Rest                                          | Hover                   | Used for                              |
-|-----------|-----------------------------------------------|-------------------------|---------------------------------------|
-| Primary   | `bg-primary text-ink-inverse border-transparent` | `bg-primary-hover`   | New task, Create, Save                |
-| Secondary | `bg-surface text-ink border-border-strong`    | `bg-surface-hover`      | Cancel                                |
-| Danger    | `bg-danger text-ink-inverse border-transparent` | `bg-danger-hover`     | Delete (edit dialog and confirmation) |
+| Variant   | Rest                                             | Hover                            | Used for                              |
+|-----------|--------------------------------------------------|----------------------------------|---------------------------------------|
+| Primary   | `bg-primary text-ink-inverse border-transparent` | `enabled:hover:bg-primary-hover` | New task, Create, Save                |
+| Secondary | `bg-surface text-ink border-border-strong`       | `enabled:hover:bg-surface-hover` | Cancel                                |
+| Danger    | `bg-danger text-ink-inverse border-transparent`  | `enabled:hover:bg-danger-hover`  | Delete (edit dialog and confirmation) |
 
-- **Disabled**: `disabled:opacity-disabled disabled:cursor-not-allowed`, and no hover change.
+- **Disabled**: `disabled:opacity-disabled disabled:cursor-not-allowed`. Hover styles use the `enabled:` variant, so a
+  disabled button does not change on hover.
 - **Keyboard focus**: the [focus ring](#focus-ring).
 - A dialog has at most one primary or danger button that confirms the action.
 
@@ -432,16 +436,21 @@ Title is required
 
 All dialogs use the native `<dialog>` element, opened as a modal (`showModal()`).
 
-- Dialog: `m-auto w-full max-w-dialog rounded-dialog bg-surface p-dialog-inset text-ink shadow-dialog
-  backdrop:bg-backdrop`. Tailwind's preflight removes the browser's `margin: auto`, so `m-auto` centres it again. On
-  viewports narrower than the dialog, it keeps `--spacing-page` free on each side.
+- Dialog: `m-auto w-full rounded-dialog bg-surface p-dialog-inset text-ink shadow-dialog backdrop:bg-backdrop`.
+  Tailwind's preflight removes the browser's `margin: auto`, so `m-auto` centres it again. On viewports narrower than
+  the dialog, it keeps `--spacing-page` free on each side.
+- Width is a dialog option with two sizes: `max-w-dialog` (default, create and edit) and `max-w-dialog-sm` (delete
+  confirmation). A dialog uses exactly one of them.
 - Content: `flex flex-col gap-dialog-stack` with three parts:
   1. **Title**: `h2`, `text-dialog-title text-ink`; it is the dialog's accessible name (`aria-labelledby`).
   2. **Content**: the form fields (`flex flex-col gap-fields`) or the confirmation text (`text-body text-ink`).
   3. **Actions**: a row of buttons, `flex items-center justify-end gap-actions`. The confirming button is last.
 - <kbd>Escape</kbd> closes the dialog like **Cancel**. Clicking the backdrop does nothing, so typed text is not lost
   by accident.
-- When a dialog closes, focus returns to the control that opened it (native `<dialog>` behaviour).
+- The parent owns whether a dialog is open. Every way of closing it (<kbd>Escape</kbd>, **Cancel**, or finishing
+  the action) ends in the dialog's `onClose`, so the parent's state and the `<dialog>` never disagree.
+- When a dialog closes, focus returns to the control that opened it (native `<dialog>` behaviour), unless that
+  control no longer exists; the edit and delete sections say where focus goes then.
 
 ```
 ┌────────────────────────────────────────┐   ┌────────────────────────────────────────┐
@@ -477,6 +486,8 @@ All dialogs use the native `<dialog>` element, opened as a modal (`showModal()`)
 - Actions: **Delete** (danger) on the left, separated from the others with `mr-auto`; then **Cancel** (secondary) and
   **Save** (primary, `type="submit"`) on the right.
 - **Cancel** discards the changes. **Save** updates the task; if the status changed, the card moves to that column.
+- After closing, focus returns to the edited card, in its new column if the status changed (the card element may
+  have been re-created there, so focus it explicitly).
 
 ### Delete confirmation
 
@@ -510,9 +521,9 @@ focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:out
 | Element             | Hover                                              |
 |---------------------|----------------------------------------------------|
 | Card                | `shadow-card-hover`; cursor `pointer`              |
-| Primary button      | `bg-primary-hover`                                 |
-| Secondary button    | `bg-surface-hover`                                 |
-| Danger button       | `bg-danger-hover`                                  |
+| Primary button      | `bg-primary-hover` (enabled buttons only)          |
+| Secondary button    | `bg-surface-hover` (enabled buttons only)          |
+| Danger button       | `bg-danger-hover` (enabled buttons only)           |
 | Style switch option | Unselected option: `text-ink`                      |
 | Inputs              | No change                                          |
 
