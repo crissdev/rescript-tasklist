@@ -22,6 +22,9 @@ external browserTracingIntegration: unit => integration = "browserTracingIntegra
 @module("@sentry/react")
 external replayIntegration: unit => integration = "replayIntegration"
 
+@module("@sentry/react")
+external consoleLoggingIntegration: unit => integration = "consoleLoggingIntegration"
+
 // Returns a handler for the React 19 root error options; see `ReactDOMClient.rootOptions`.
 // The optional callback runs after Sentry captures the error and receives its event ID.
 @module("@sentry/react")
