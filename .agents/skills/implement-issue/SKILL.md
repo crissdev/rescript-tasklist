@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Take one available `status:ready` GitHub issue from claim to merge — claim it, implement it in a dedicated git worktree, open a PR, iterate on Copilot code review until it recommends approval, file issues for bugs found along the way, then merge with the merge-pr skill. Use when asked to pick up, implement or ship an issue, or when running unattended issue automation.
+description: Take one available `status:ready` GitHub issue from claim to merge — claim it, implement it in a dedicated git worktree, open a PR, address code review until the head commit has the required approvals and no unresolved threads, file issues for bugs found along the way, then merge with the merge-pr skill. Use when asked to pick up, implement or ship an issue, or when running unattended issue automation.
 argument-hint: "[issue number]"
 ---
 
@@ -81,48 +81,38 @@ Push the branch and open a ready-for-review PR against `main` with `gh pr create
   <sub>🤖 Implemented by <agent name> · session `<agent ID>` · [session link](<session link>)</sub>
   ```
 
-## 5. Copilot review loop
+## 5. Review loop
 
-Run at most **5** review rounds. A round is one Copilot review of the current head commit.
+Follow [Pull requests](../../../AGENTS.md#pull-requests): reviewers are configured to review every push, so never
+request reviews. `review-status.sh` is
+[`.agents/skills/merge-pr/scripts/review-status.sh`](../merge-pr/scripts/review-status.sh); it prints the PR's
+reviews, approvals and unresolved threads as JSON.
 
-1. Request a review: `gh pr edit <pr> --add-reviewer @copilot` (this also re-requests it in later rounds).
-2. Wait for it. Poll every minute, for up to 30 minutes, until a Copilot review of the head commit exists:
+Run at most **5** review rounds. A round is one pass over the reviews of the current head commit.
 
-   ```sh
-   head=$(gh pr view <pr> --json headRefOid -q .headRefOid)
-   gh api "$R/pulls/<pr>/reviews" \
-     -q "[.[] | select(.user.login == \"copilot-pull-request-reviewer[bot]\" and .commit_id == \"$head\")] | last | .body"
-   ```
-
-   If none arrives, re-request once and wait again. If it still does not arrive, handle it as in step 7.
-3. Read the unresolved review threads (GraphQL reports the reviewer as `copilot-pull-request-reviewer`, without `[bot]`):
-
-   ```sh
-   gh api graphql -F owner=<owner> -F repo=<repo> -F pr=<pr> -f query='
-     query($owner: String!, $repo: String!, $pr: Int!) {
-       repository(owner: $owner, name: $repo) { pullRequest(number: $pr) {
-         reviewThreads(first: 100) { nodes { id isResolved path line
-           comments(first: 20) { nodes { databaseId author { login } body } } } } } } }' \
-     -q '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved | not)]'
-   ```
-
-4. The review **recommends approval** when it is on the head commit, its summary reports no open issues (currently
-   `🟢 Approval recommended` and `No open issues`), and no review threads are unresolved. Copilot never submits an
-   `APPROVED` review, so this is the approval signal. Also wait for CI with `gh pr checks <pr> --watch`. If both pass,
-   go to step 6.
-5. Otherwise address every unresolved thread and failing check:
+1. Wait for reviews. Poll `review-status.sh <pr>` every minute, for up to 30 minutes, until `reviewedHead` lists at
+   least as many reviewers as the required number of approvals. If the time runs out with no review of the head
+   commit, handle it as in step 7. If some reviews arrived, continue with them.
+2. Wait for CI with `gh pr checks <pr> --watch`.
+3. If `approvals` has at least the required number of reviewers, `unresolvedThreads` is empty and CI passes, go to
+   step 6.
+4. Otherwise address every unresolved thread, every concern raised in the `body` of a review of the head commit, and
+   every failing check:
    - Fix valid in-scope comments with focused commits and re-run the relevant validation.
    - For comments you disagree with, or that are valid but out of scope, reply with the reason. Add out-of-scope bugs
      to the discovered bugs list.
-   - Reply in each thread, then resolve it:
+   - Reply in each thread, then resolve it. You own the threads on your PR; reviewers do not resolve them:
 
      ```sh
      gh api -X POST "$R/pulls/<pr>/comments/<first comment databaseId>/replies" -f body='<reply>'
      gh api graphql -f query='mutation($id: ID!) { resolveReviewThread(input: {threadId: $id}) { thread { isResolved } } }' -f id=<thread id>
      ```
 
-   - Fix failing CI the same way. Push, then start the next round.
-6. If approval is still not recommended after round 5, handle it as in step 7.
+   - Fix failing CI the same way.
+   - If you pushed commits, start the next round. If you only replied and resolved threads, go back to sub-step 3.
+     If there was nothing to address, handle it as in step 7.
+5. If the PR still lacks the required approvals or has unresolved threads after round 5, or too few reviewers review
+   the head commit, handle it as in step 7.
 
 ## 6. File discovered bugs and merge
 
@@ -137,7 +127,7 @@ Run at most **5** review rounds. A round is one Copilot review of the current he
 
 ## 7. Blockers
 
-When you have to stop before merging (an open product decision, no review arrives, the round limit is reached, an
+When you have to stop before merging (an open product decision, too few reviews or approvals, the round limit is reached, an
 unfixable CI failure, or a merge conflict you cannot resolve):
 
 1. Comment on the issue with what is done, what is left, the PR link if there is one, and what you need from the user.
