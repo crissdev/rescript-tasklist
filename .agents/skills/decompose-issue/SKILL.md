@@ -11,6 +11,8 @@ Split the parent issue given as the argument into sub-issues. Each sub-issue mus
 
 The work has two phases. Stop after phase 1 and wait. Start phase 2 only when the developer explicitly asks for the issues to be created.
 
+**Override:** if the invocation explicitly says to create the issues without confirmation (for example `/decompose-issue 5 without confirmation`), run phase 2 straight after phase 1 and include the phase 1 reply in your final reply. The created issues get `status:needs-triage` like any agent-created issue, so the developer reviews them on GitHub instead of in the session. Open decisions still stay open: record them as described in phase 2 instead of choosing an answer.
+
 ## Phase 1: Propose
 
 1. Read the parent issue, including its comments, acceptance criteria and any linked or blocking issues: `gh issue view <n> --comments`.
@@ -33,23 +35,10 @@ Do not create any GitHub issues in this phase.
 
 ## Phase 2: Create on GitHub
 
-Only after the developer confirms the table, including any changes they asked for:
+Only after the developer confirms the table, including any changes they asked for, or when the override applies:
 
 1. Read [`docs/GITHUB_ISSUES.md`](../../../docs/GITHUB_ISSUES.md) and apply its labels to every sub-issue when you create it.
-2. Check `.github/` for issue templates. If there are none, follow the format of the parent and its existing sub-issues:
-
-   ```markdown
-   ## Summary
-   ## Scope
-   ## Acceptance criteria   (as a - [ ] checklist)
-   ## Depends on            (list "#N Title", or omit when there are no dependencies)
-
-   Part of #<parent> <parent title>.
-
-   ## Testing               (commands, plus pointers to AGENTS.md and relevant skills)
-   ```
-
-   Give each body enough context (files, conventions, constraints from phase 1) for an agent to pick it up without re-discovering the same facts. Include only the decisions the developer has confirmed. If a decision is still open, add an `## Open decisions` section that states the question and apply the `needs-decision` label.
+2. Write each body in the issue body format from [`docs/GITHUB_ISSUES.md`](../../../docs/GITHUB_ISSUES.md#issue-body), using the files, conventions and constraints found in phase 1. Include only the decisions the developer has confirmed. If a decision is still open, add an `## Open decisions` section that states the question and apply the `needs-decision` label.
 3. Create the issues in dependency order with `gh issue create`, so each `Depends on` section can refer to real issue numbers.
 4. Link each issue to the parent as a sub-issue, then record its blockers. Both endpoints take the issue's database `id`, not its number:
 

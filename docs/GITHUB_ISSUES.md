@@ -81,5 +81,33 @@ GitHub's defaults `duplicate`, `invalid`, `wontfix`, `question`, `help wanted` a
 3. Add the most specific `area:*` labels.
 4. Add `type:refactor`, `accessibility` or `needs-decision` only when useful.
 5. Link blocking issues and sub-issues.
-6. If you are an agent, add `status:needs-triage`.
-7. Include enough implementation context for another agent to pick it up without re-discovering the same facts.
+6. Write the body in the [issue body format](#issue-body).
+7. If you are an agent, add `status:needs-triage`.
+8. If the work is too large for one agent to finish without its context being compacted, do not split it yourself.
+   Create it as a single issue and say in a comment that it needs decomposing.
+   The developer splits it with the `decompose-issue` skill (`/decompose-issue <n>`).
+
+## Issue Body
+
+If `.github/` has an issue template, follow it. Otherwise use these sections:
+
+```markdown
+## Summary
+## Scope
+## Acceptance criteria   (as a - [ ] checklist)
+## Depends on            (list "#N Title", or omit when there are no dependencies)
+
+Part of #<parent> <parent title>.   (sub-issues only)
+
+## Testing               (commands, plus pointers to AGENTS.md and relevant skills)
+```
+
+The body has enough context when an agent can start work without re-discovering facts you already found:
+
+- **Scope** names the files, modules and bindings to change or add, the existing conventions to follow, and
+  constraints from related issues, for example work that belongs to another issue.
+- **Acceptance criteria** are checkable outcomes, including the tests that must cover them.
+- Facts you have not verified, such as whether a binding or API exists, are written as the first step to check, not
+  as settled.
+- Product questions that the issue and its referenced docs do not answer go in an `## Open decisions` section with the
+  `needs-decision` label. Do not choose an answer yourself.
