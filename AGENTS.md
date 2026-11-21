@@ -102,6 +102,8 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 ## GitHub issues
 
 - Before creating or triaging an issue, read [`docs/GITHUB_ISSUES.md`](docs/GITHUB_ISSUES.md) and apply its labels when the issue is created.
+- To deliver an available issue end to end (claim, implement, Copilot review, merge), use the `implement-issue` skill.
+  To merge a PR, use the `merge-pr` skill.
 
 ### Issue status
 
@@ -185,4 +187,5 @@ stateDiagram-v2
 
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
 - Work in the main checkout unless I specify otherwise. Do not implicitly create a new branch or work in a worktree.
+- Automated work, such as the `implement-issue` skill, always runs in a dedicated git worktree on its own branch.
 - Group related changes into separate, focused commits instead of one large commit. Each commit should contain one logical change together with its related documentation and tests, and commits should be ordered so that each one builds on the previous ones.
