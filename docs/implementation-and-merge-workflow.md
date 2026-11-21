@@ -13,7 +13,7 @@ flowchart TD
     F --> G[Wait for reviews and CI on current head]
     G --> H{Required approvals,<br/>CI passes, no unresolved threads?}
     H -- No --> I{Can address feedback<br/>within remaining review rounds?}
-    I -- Yes --> J[Fix issues, reply to comments,<br/>resolve threads, rerun validation]
+    I -- Yes --> J[Fix and validate feedback;<br/>reply and resolve threads;<br/>commit and push fixes]
     J --> G
     I -- No --> X[Set status:needs-input;<br/>leave PR and worktree open]
     H -- Yes --> K[File discovered bugs;<br/>set issue status:in-review]
@@ -29,11 +29,15 @@ flowchart TD
 
     subgraph Merge PR skill
         M[Recheck PR is open and ready,<br/>up to date with main and conflict-free,<br/>CI passes, approval is on current head,<br/>no unresolved threads, and reviewDecision<br/>is not CHANGES_REQUESTED] --> P{All merge checks pass?}
-        P -- Yes --> Q[Squash-merge pinned head commit]
-        Q --> S[Confirm referenced issues closed]
-        S --> T{Worktree clean<br/>and not the main checkout?}
-        T -- Yes --> U[Remove worktree and local branch]
-        T -- No --> V[Leave worktree in place and report]
+        P -- Yes --> Q[Immediately before merging,<br/>reread baseRefName and recheck behind_by]
+        Q --> AD{Did baseRefName change?}
+        AD -- Yes --> M
+        AD -- No --> AE{behind_by equals 0?}
+        AE -- Yes --> AF[Squash-merge pinned head commit]
+        AF --> AG[Confirm referenced issues closed]
+        AG --> AH{Worktree clean<br/>and not the main checkout?}
+        AH -- Yes --> AI[Remove worktree and local branch]
+        AH -- No --> AJ[Leave worktree in place and report]
     end
 
     P -- No --> W[Merge refused]
@@ -43,7 +47,9 @@ flowchart TD
     AA -- Yes --> AB[Fix refusal, validate and push;<br/>set issue status:in-progress]
     AB --> G
     AA -- No --> X
+    AE -- No --> AK[Report branch fell behind;<br/>return to implement-issue update path]
+    AK --> L
 
-    U --> AC([Report merge, issue status,<br/>and cleanup])
-    V --> AC
+    AI --> AL([Report merge, issue status,<br/>and cleanup])
+    AJ --> AL
 ```
