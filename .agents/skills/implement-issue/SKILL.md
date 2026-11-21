@@ -120,10 +120,22 @@ Run at most **5** review rounds. A round is one pass over the reviews of the cur
    [`docs/GITHUB_ISSUES.md`](../../../docs/GITHUB_ISSUES.md) describes (labels, `status:needs-triage`, body format).
    Mention the PR in the body, and list the new issues in a PR comment.
 2. Switch the issue to `status:in-review`.
-3. Merge with the [`merge-pr`](../merge-pr/SKILL.md) skill. It merges, checks that the issue closed and removes the
-   worktree. If it refuses to merge, fix what it reports when you can (for example a merge conflict: merge `main`,
-   validate, push, switch back to `status:in-progress` and run the review loop again within the remaining rounds).
-   Otherwise handle it as in step 7.
+3. Update the branch. Read `mergeStateStatus` with `gh pr view <pr> --json mergeStateStatus -q .mergeStateStatus`
+   (if it is `UNKNOWN`, wait a few seconds and read it again). If it is `BEHIND` or `DIRTY`, the branch is behind
+   `main` or conflicts with it. Rebase it onto the latest `main` instead of merging `main` into it:
+
+   ```sh
+   git fetch origin main
+   git rebase origin/main
+   ```
+
+   Resolve any conflicts, then repeat the validation from step 3 and push with `git push --force-with-lease`. The
+   push sets off new reviews, so switch back to `status:in-progress` and run the review loop again within the
+   remaining rounds. If the conflicts cannot be resolved, abort with `git rebase --abort` and handle it as in step 7.
+   Only rebase here, right before merging, not during the review loop.
+4. Merge with the [`merge-pr`](../merge-pr/SKILL.md) skill. It merges, checks that the issue closed and removes the
+   worktree. If it refuses because the branch is behind `main` or conflicts with it, go back to sub-step 3. If it
+   refuses for another reason, fix what it reports when you can, or handle it as in step 7.
 
 ## 7. Blockers
 
