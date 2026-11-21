@@ -32,6 +32,7 @@ Run every command from the repository root after `nvm use`.
 ## Bindings
 
 - Local bindings live in `tests/bindings` and expose only the APIs used by tests. Extend them when tests need additional APIs rather than adding a third-party binding package.
+- Keep this skill focused on why and when to extend bindings; do not duplicate an exhaustive API inventory here. The binding modules are the source of truth, and this guidance must not discourage adding APIs needed by tests.
 - Check new binding signatures against the installed type declarations in `node_modules`.
   - Test API: https://vitest.dev/api/test
   - Locators: https://vitest.dev/api/browser/locators
