@@ -493,8 +493,8 @@ All dialogs use the native `<dialog>` element, opened as a modal (`showModal()`)
 
 - Opened by **Delete** in the edit dialog. It opens on top of the edit dialog (both are in the top layer).
 - Title: **Delete task?** Width: `max-w-dialog-sm`.
-- Content: `“<task title>” will be removed from the board. This can't be undone.` in `text-body`. The title is shown
-  in full here, not clamped.
+- Content: `“<task title>” will be removed from the board. This can't be undone.` in `text-body wrap-anywhere`. The
+  title is shown in full here, not clamped; long words and URLs wrap within the dialog.
 - Actions: **Cancel** (secondary), **Delete** (danger). Initial focus is on **Cancel**, the safe choice.
 - **Cancel** or <kbd>Escape</kbd> returns to the edit dialog. **Delete** removes the task and closes both dialogs;
   because the card no longer exists, focus moves to the **New task** button.
