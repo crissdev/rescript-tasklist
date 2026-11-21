@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@rescript/react": "^0.15.0",
+    "@sentry/react": "11.16.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "rescript": "12.3.1"

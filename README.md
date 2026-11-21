@@ -21,6 +21,16 @@ nvm use
 bun install
 ```
 
+### Error monitoring
+
+The app reports errors, traces, logs and Session Replays to [Sentry](https://sentry.io) when `VITE_SENTRY_DSN` is set, and Sentry stays disabled otherwise. For local development, put the project's DSN in `.env.development.local`, which git ignores:
+
+```sh
+VITE_SENTRY_DSN=https://<key>@<host>/<project-id>
+```
+
+Production builds read `VITE_SENTRY_DSN` from the build environment, so set it in the Vercel project's environment variables. On Vercel, Sentry tags events with the deployment environment (`VITE_VERCEL_ENV`) and uses the commit SHA (`VITE_VERCEL_GIT_COMMIT_SHA`) as the release; elsewhere the environment is Vite's mode. Traces are sampled at 100% in development and 10% in production builds.
+
 ## Development
 
 Run the ReScript compiler in watch mode:
