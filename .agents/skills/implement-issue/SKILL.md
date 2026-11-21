@@ -120,9 +120,11 @@ Run at most **5** review rounds. A round is one pass over the reviews of the cur
    [`docs/GITHUB_ISSUES.md`](../../../docs/GITHUB_ISSUES.md) describes (labels, `status:needs-triage`, body format).
    Mention the PR in the body, and list the new issues in a PR comment.
 2. Switch the issue to `status:in-review`.
-3. Update the branch. Read `mergeStateStatus` with `gh pr view <pr> --json mergeStateStatus -q .mergeStateStatus`
-   (if it is `UNKNOWN`, wait a few seconds and read it again). If it is `BEHIND` or `DIRTY`, the branch is behind
-   `main` or conflicts with it. Rebase it onto the latest `main` instead of merging `main` into it:
+3. Update the branch. Read `mergeStateStatus` and `headRefOid` with `gh pr view <pr> --json mergeStateStatus,headRefOid`
+   (if `mergeStateStatus` is `UNKNOWN`, wait a few seconds and read it again), and the number of `main` commits the
+   branch lacks with `gh api 'repos/{owner}/{repo}/compare/main...<headRefOid>' --jq .behind_by`. If the status is
+   `DIRTY` or the count is not `0`, the branch conflicts with `main` or is behind it (the status is not always `BEHIND`
+   then). Rebase it onto the latest `main` instead of merging `main` into it:
 
    ```sh
    git fetch origin main
