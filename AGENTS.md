@@ -102,7 +102,7 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 ## GitHub issues
 
 - Before creating or triaging an issue, read [`docs/GITHUB_ISSUES.md`](docs/GITHUB_ISSUES.md) and apply its labels when the issue is created.
-- To deliver an available issue end to end (claim, implement, Copilot review, merge), use the `implement-issue` skill.
+- To deliver an available issue end to end (claim, implement, code review, merge), use the `implement-issue` skill.
   To merge a PR, use the `merge-pr` skill.
 
 ### Issue status
@@ -182,6 +182,22 @@ stateDiagram-v2
 - When the work is done, switch to `status:in-review`. If changes are requested, switch back to `status:in-progress`.
 - If you stop before finishing, post `agent-release: <agent-id>` with a short summary of what is done and what is
   left, and switch back to `status:ready`. If you found a blocker, also record it as a "blocked by" link.
+
+## Pull requests
+
+Pull requests are reviewed by review agents. Repository and reviewer settings decide which agents review and make
+them review every push, so instructions and skills never name a reviewer or request reviews: they wait for reviews of
+the head commit instead.
+
+- **Required approvals: 2.** A reviewer approves a PR when its latest review is on the head commit, is not
+  `CHANGES_REQUESTED`, and every review thread it opened is resolved. A `COMMENTED` review counts too, because not
+  every review agent submits `APPROVED` reviews. Reviews by the PR author do not count.
+- **No unresolved conversations.** A PR is merged only when every review thread is resolved.
+- **The agent that opened the PR owns its threads.** It addresses each thread by fixing it or replying with its
+  reasoning, then resolves it. Reviewers are not expected to resolve threads. It also reads each review's summary
+  and addresses concerns raised there that have no thread.
+- [`review-status.sh <pr>`](.agents/skills/merge-pr/scripts/review-status.sh) reports each reviewer's latest review,
+  the approvals of the head commit and the unresolved threads.
 
 ## Git
 
