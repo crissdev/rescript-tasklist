@@ -31,6 +31,8 @@ VITE_SENTRY_DSN=https://<key>@<host>/<project-id>
 
 Production builds read `VITE_SENTRY_DSN` from the build environment, so set it in the Vercel project's environment variables. On Vercel, Sentry tags events with the deployment environment (`VITE_VERCEL_ENV`) and uses the commit SHA (`VITE_VERCEL_GIT_COMMIT_SHA`) as the release; elsewhere the environment is Vite's mode. Traces are sampled at 100% in development and 10% in production builds.
 
+When `SENTRY_AUTH_TOKEN` is set at build time, `bun run build` generates hidden source maps, uploads them to Sentry and deletes them from `dist/`, so production stack traces stay readable. Add the token, an [organization auth token](https://docs.sentry.io/account/auth-tokens/), to the Vercel project's environment variables and never commit it. Without it, the build skips source maps.
+
 ## Development
 
 Run the ReScript compiler in watch mode:

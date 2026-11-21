@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.65.1",
+    "@sentry/bundler-plugins": "11.16.0",
     "@tailwindcss/vite": "^4.3.5",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/browser-playwright": "^5.1.1",
