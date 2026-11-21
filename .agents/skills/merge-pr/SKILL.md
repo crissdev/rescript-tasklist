@@ -18,14 +18,23 @@ in the repository root. It prints the PR's reviews, approvals and unresolved thr
 Read its state:
 
 ```sh
-gh pr view <pr> --json number,state,isDraft,headRefName,headRefOid,mergeable,mergeStateStatus,reviewDecision,closingIssuesReferences,body
+gh pr view <pr> --json number,state,isDraft,baseRefName,headRefName,headRefOid,mergeable,mergeStateStatus,reviewDecision,closingIssuesReferences,body
 ```
 
 Every condition must hold:
 
 1. **Open and ready:** `state` is `OPEN` and `isDraft` is `false`.
-2. **No conflicts:** `mergeable` is `MERGEABLE` and `mergeStateStatus` is not `DIRTY`. GitHub computes these lazily;
-   if `mergeable` is `UNKNOWN`, wait a few seconds and read it again.
+2. **Up to date with no conflicts:** `mergeable` is `MERGEABLE` and `mergeStateStatus` is neither `DIRTY`
+   (conflicts) nor `BEHIND` (the branch lacks commits from the base branch, so CI and reviews did not see the code
+   that would be merged). GitHub computes these lazily; if either is `UNKNOWN`, wait a few seconds and read it again.
+   `mergeStateStatus` is not `BEHIND` when the base branch does not require branches to be up to date, so also check
+   that the head contains every base commit:
+
+   ```sh
+   gh api 'repos/{owner}/{repo}/compare/<baseRefName>...<headRefOid>' --jq .behind_by
+   ```
+
+   It must print `0`.
 3. **CI passes:** `gh pr checks <pr>` reports no failing or pending checks. Wait for pending checks with `--watch`.
 4. **Reviews approve the head commit:** following [Pull requests](../../../AGENTS.md#pull-requests), `approvals`
    from `review-status.sh <pr>` has at least the required number of reviewers, and its `head` is `headRefOid`.
@@ -44,6 +53,11 @@ Every condition must hold:
 If a condition fails, reply with which ones failed and why, and stop.
 
 ## 2. Merge
+
+The base branch can move while step 1 waits for CI or reviews, and `--match-head-commit` pins only the head. So
+immediately before merging, read `baseRefName` again with `gh pr view <pr> --json baseRefName`. If it changed, start
+again from step 1. Otherwise run the `behind_by` check from condition 2 again. If it does not print `0`, the branch
+fell behind: report it and stop.
 
 The repository allows squash merges only. Pin the checked head commit so nothing pushed after the checks is merged:
 
