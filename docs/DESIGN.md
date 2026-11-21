@@ -444,7 +444,9 @@ All dialogs use the native `<dialog>` element, opened as a modal (`showModal()`)
 - Content: `flex flex-col gap-dialog-stack` with three parts:
   1. **Title**: `h2`, `text-dialog-title text-ink`; it is the dialog's accessible name (`aria-labelledby`).
   2. **Content**: the form fields (`flex flex-col gap-fields`) or the confirmation text (`text-body text-ink`).
-  3. **Actions**: a row of buttons, `flex items-center justify-end gap-actions`. The confirming button is last.
+  3. **Actions**: a row of buttons, `flex flex-wrap items-center justify-end gap-actions`. The confirming button is
+     last. When the buttons do not fit on one line, as in the edit dialog on a 320px screen, they wrap and stay
+     right-aligned, so nothing overflows the dialog padding.
 - <kbd>Escape</kbd> closes the dialog like **Cancel**. Clicking the backdrop does nothing, so typed text is not lost
   by accident.
 - The parent owns whether a dialog is open. Every way of closing it (<kbd>Escape</kbd>, **Cancel**, or finishing
