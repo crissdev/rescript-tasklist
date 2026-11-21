@@ -8,6 +8,8 @@ Apply labels when the issue is created so later cleanup is not needed.
 - Always apply exactly one type label: `bug`, `feature`, `enhancement` or `documentation`.
 - Always apply at least one `area:*` label.
 - Add `type:refactor`, `accessibility` or `needs-decision` only when they apply.
+- Agents add `status:needs-triage` to every issue they create. The user replaces it with `status:ready` after verifying the issue. See the status workflow in [`AGENTS.md`](../AGENTS.md#issue-status).
+- Record dependencies as GitHub "blocked by" links and parent issues as sub-issues, not only as text in the body.
 - Prefer existing labels over creating one-off labels. Create a new label only when several future issues are likely to need it, and add it to this guide.
 - Use `feature` for net-new user-facing capabilities described in [`APP_DESCRIPTION.md`](APP_DESCRIPTION.md).
 - Use `enhancement` for improving existing behavior, UI or code, and for internal building blocks such as shared components, theme tokens, test bindings and tooling.
@@ -30,6 +32,16 @@ Apply labels when the issue is created so later cleanup is not needed.
 | ---------------- | -------------------------------------------------------------------- |
 | `accessibility`  | Keyboard access, focus, labels, screen readers, contrast             |
 | `needs-decision` | An open design or technical decision blocks implementation           |
+
+## Status Labels
+
+| Label                 | Use for                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| `status:needs-triage` | Created by an agent and waits for the user to verify it       |
+| `status:ready`        | Approved by the user for agents to pick up                    |
+| `status:in-progress`  | Claimed by an agent and being worked on                       |
+| `status:needs-input`  | The claiming agent waits on the user for an answer            |
+| `status:in-review`    | Work is done and waits for the user to review, merge or close |
 
 ## Area Labels
 
@@ -68,4 +80,6 @@ GitHub's defaults `duplicate`, `invalid`, `wontfix`, `question`, `help wanted` a
 2. Pick one type label.
 3. Add the most specific `area:*` labels.
 4. Add `type:refactor`, `accessibility` or `needs-decision` only when useful.
-5. Include enough implementation context for another agent to pick it up without re-discovering the same facts.
+5. Link blocking issues and sub-issues.
+6. If you are an agent, add `status:needs-triage`.
+7. Include enough implementation context for another agent to pick it up without re-discovering the same facts.

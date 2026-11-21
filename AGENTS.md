@@ -103,6 +103,78 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 
 - Before creating or triaging an issue, read [`docs/GITHUB_ISSUES.md`](docs/GITHUB_ISSUES.md) and apply its labels when the issue is created.
 
+### Issue status
+
+Several agents work on issues in parallel. GitHub already records whether an issue is open or closed, which issues
+block it and which sub-issues it has, so treat those as the single source of truth and do not mirror them in labels.
+`status:*` labels record what GitHub cannot: which issues wait for the user to verify them, which issues the user has
+approved for agents, which issue an agent is working on, and which issues wait on the user. An open issue has at most
+one `status:*` label.
+
+| Label                 | Meaning                                                       | Set by         |
+| --------------------- | ------------------------------------------------------------- | -------------- |
+| `status:needs-triage` | Created by an agent; the user has not verified it yet         | Creating agent |
+| `status:ready`        | The user approved it for agents to pick up                    | User only      |
+| `status:in-progress`  | An agent has claimed it and is working on it                  | Claiming agent |
+| `status:needs-input`  | The claiming agent asked the user a question and waits        | Claiming agent |
+| `status:in-review`    | Work is done and waits for the user to review, merge or close | Claiming agent |
+
+Every issue an agent creates starts as `status:needs-triage`. The user verifies it and replaces the label with
+`status:ready`, edits it first, or closes it. An open issue without a `status:*` label was created by the user and is
+not approved for agents yet; agents leave it alone.
+
+An issue labelled `status:ready` is **available** only when nothing blocks it:
+
+- every issue in its "blocked by" list is closed;
+- every sub-issue is closed, or it has none (claim open sub-issues instead of their parent);
+- it has no `needs-decision` label.
+
+Issues that need the user are those labelled `status:needs-triage`, `status:needs-input`, `status:in-review` or
+`needs-decision`.
+
+```mermaid
+stateDiagram-v2
+    [*] --> needs_triage: agent creates
+    [*] --> ready: user creates and approves
+    needs_triage --> ready: user verifies
+    needs_triage --> [*]: user closes
+    ready --> in_progress: agent claims, nothing blocks it
+    in_progress --> needs_input: agent asks the user
+    needs_input --> in_progress: user answered
+    in_progress --> in_review: work done
+    in_review --> in_progress: changes requested
+    in_progress --> ready: agent releases
+    in_review --> [*]: PR merged or user closes
+```
+
+#### Rules
+
+- Agents share the user's GitHub account, so assignees cannot tell agents apart. Ownership is recorded with claim
+  comments that name a stable agent ID, such as the session ID, or the agent name plus its branch.
+- Add `status:needs-triage` to every issue you create. Never add `status:ready` yourself; only the user approves
+  issues for agents.
+- Only claim available issues. Never take over an issue another agent owns unless the user asks you to.
+- Work in one claimed issue at a time unless the user assigns several.
+- Record dependencies as GitHub "blocked by" links and sub-issues, not only as text in the issue body.
+- Do not close issues yourself. A merged PR that references the issue closes it, otherwise the user closes it.
+
+#### Claiming an issue
+
+1. Re-read the issue, its "blocked by" list and its sub-issues, and confirm it is still available.
+2. Post a comment whose first line is `agent-claim: <agent-id>`.
+3. Re-read the comments. If another `agent-claim` comment was posted before yours and has no later matching
+   `agent-release`, you lost the race: delete your comment and pick another issue.
+4. Otherwise replace `status:ready` with `status:in-progress`, for example:
+   `gh issue edit <n> --remove-label status:ready --add-label status:in-progress`.
+
+#### While working
+
+- When you need the user, ask in an issue comment or in the session, and switch to `status:needs-input`. Switch back
+  to `status:in-progress` once the user has answered.
+- When the work is done, switch to `status:in-review`. If changes are requested, switch back to `status:in-progress`.
+- If you stop before finishing, post `agent-release: <agent-id>` with a short summary of what is done and what is
+  left, and switch back to `status:ready`. If you found a blocker, also record it as a "blocked by" link.
+
 ## Git
 
 - Do not sign yourself in any git commit (adding Co-authored-by) unless I ask you to.
