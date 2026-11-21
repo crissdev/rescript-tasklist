@@ -55,7 +55,8 @@ If a condition fails, reply with which ones failed and why, and stop.
 ## 2. Merge
 
 The base branch can move while step 1 waits for CI or reviews, and `--match-head-commit` pins only the head. So
-immediately before merging, run the `behind_by` check from condition 2 again. If it does not print `0`, the branch
+immediately before merging, read `baseRefName` again with `gh pr view <pr> --json baseRefName`. If it changed, start
+again from step 1. Otherwise run the `behind_by` check from condition 2 again. If it does not print `0`, the branch
 fell behind: report it and stop.
 
 The repository allows squash merges only. Pin the checked head commit so nothing pushed after the checks is merged:
