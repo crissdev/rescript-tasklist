@@ -31,19 +31,11 @@ Run every command from the repository root after `nvm use`.
 
 ## Bindings
 
-- Local bindings live in `tests/bindings` and cover only the APIs the tests use. `VitestBrowserReact.res` binds `render`. `Vitest.res` binds:
-  - `describe` and `test`.
-  - `Locator`: `getByRole` (options `name`, `exact`, `level` and `includeHidden`), `getByLabelText` (option `exact`), `click` and `fill`.
-  - `UserEvent.keyboard` from `vitest/browser`, for keys such as `"{Escape}"`.
-  - `Mock.fn` (`vi.fn`) for one-argument handlers that return `unit`, and `Mock.toFunction` to pass the mock as a prop.
-  - `Expect.element` with `not`, `toBeVisible`, `toHaveFocus`, `toHaveValue`, `toHaveTextContent` and `toHaveAttribute`.
-  - `Expect.mock` (`expect` on a mock) with `toHaveBeenCalledTimes`. It does not retry, so assert after awaiting the action that calls the mock.
-- A closed `<dialog>` is hidden from the accessibility tree. To assert that it is not visible, locate it with `getByRole(#dialog, ~options={..., includeHidden: true})` and use `Expect.not`.
-- When a test needs another API, extend these bindings rather than adding a third-party binding package. Check the signature against the installed type declarations in `node_modules` first.
+- Local bindings live in `tests/bindings` and expose only the APIs used by tests. Extend them when tests need additional APIs rather than adding a third-party binding package.
+- Check new binding signatures against the installed type declarations in `node_modules`.
   - Test API: https://vitest.dev/api/test
   - Locators: https://vitest.dev/api/browser/locators
   - Assertions: https://vitest.dev/api/browser/assertions
-- Add ARIA roles to `Vitest.Locator.role` as tests need them.
 
 ## Writing tests
 
