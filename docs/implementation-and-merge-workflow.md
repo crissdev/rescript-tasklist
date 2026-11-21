@@ -24,7 +24,8 @@ flowchart TD
     R -- Yes --> O[Push branch;<br/>set issue status:in-progress]
     O --> G
     R -- No --> X
-    N -- Cannot resolve conflicts --> X
+    N -- Cannot resolve conflicts --> AC[Run git rebase --abort]
+    AC --> X
 
     subgraph Merge PR skill
         M[Recheck PR is open and ready,<br/>up to date with main and conflict-free,<br/>CI passes, approval is on current head,<br/>no unresolved threads, and reviewDecision<br/>is not CHANGES_REQUESTED] --> P{All merge checks pass?}
