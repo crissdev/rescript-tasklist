@@ -189,7 +189,7 @@ Pull requests are reviewed by review agents. Repository and reviewer settings de
 them review every push, so instructions and skills never name a reviewer or request reviews: they wait for reviews of
 the head commit instead.
 
-- **Required approvals: 2.** A reviewer approves a PR when its latest review is on the head commit, is not
+- **Required approvals: 1.** A reviewer approves a PR when its latest review is on the head commit, is not
   `CHANGES_REQUESTED`, and every review thread it opened is resolved. A `COMMENTED` review counts too, because not
   every review agent submits `APPROVED` reviews. Reviews by the PR author do not count.
 - **No unresolved conversations.** A PR is merged only when every review thread is resolved.
