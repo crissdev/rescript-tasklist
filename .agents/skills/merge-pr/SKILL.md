@@ -1,16 +1,17 @@
 ---
 name: merge-pr
-description: Safely squash-merge a pull request once CI passes and Copilot code review of the head commit recommends approval (requesting that review when it is missing), then confirm its linked issues closed and clean up its worktree and local branch. Use when asked to merge a PR, or as the final step of the implement-issue skill.
+description: Safely squash-merge a pull request once CI passes, the head commit has the required number of review approvals and no review thread is unresolved, then confirm its linked issues closed and clean up its worktree and local branch. Use when asked to merge a PR, or as the final step of the implement-issue skill.
 argument-hint: "<PR number> [skip review check]"
 ---
 
 # Merge a pull request
 
 Merge the PR given as the argument, or the PR for the current branch when none is given. Check everything first and
-merge only when every check passes. This skill does not fix problems: apart from requesting a missing Copilot review,
-when a check fails, report it and stop.
+merge only when every check passes. This skill does not fix problems: apart from waiting for missing reviews, when a
+check fails, report it and stop.
 
-In the commands below, `R=repos/<owner>/<repo>` and `<owner>/<repo>` come from `gh repo view --json nameWithOwner -q .nameWithOwner`.
+In the commands below, `review-status.sh` is [`.agents/skills/merge-pr/scripts/review-status.sh`](scripts/review-status.sh)
+in the repository root. It prints the PR's reviews, approvals and unresolved threads as JSON.
 
 ## 1. Check that the PR can be merged
 
@@ -26,33 +27,16 @@ Every condition must hold:
 2. **No conflicts:** `mergeable` is `MERGEABLE` and `mergeStateStatus` is not `DIRTY`. GitHub computes these lazily;
    if `mergeable` is `UNKNOWN`, wait a few seconds and read it again.
 3. **CI passes:** `gh pr checks <pr>` reports no failing or pending checks. Wait for pending checks with `--watch`.
-4. **Copilot recommends approval:** the latest Copilot review is on the head commit (`headRefOid`), its summary
-   reports no open issues (currently `🟢 Approval recommended` and `No open issues`), and no review threads are
-   unresolved. Copilot never submits an `APPROVED` review, so this is the approval signal:
+4. **Reviews approve the head commit:** following [Pull requests](../../../AGENTS.md#pull-requests), `approvals`
+   from `review-status.sh <pr>` has at least the required number of reviewers, and its `head` is `headRefOid`.
+   Never request reviews: reviewers are configured to review every push.
 
-   ```sh
-   gh api "$R/pulls/<pr>/reviews" \
-     -q '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | last | {commit_id, body}'
-   gh api graphql -F owner=<owner> -F repo=<repo> -F pr=<pr> -f query='
-     query($owner: String!, $repo: String!, $pr: Int!) {
-       repository(owner: $owner, name: $repo) { pullRequest(number: $pr) {
-         reviewThreads(first: 100) { nodes { isResolved } } } } }' \
-     -q '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved | not)] | length'
-   ```
+   If `reviewedHead` has fewer reviewers than required (for example right after new commits or a rebase), poll the
+   script every minute, for up to 30 minutes, until it has enough. Then check this condition again. If too few
+   reviews arrive, the condition fails.
 
-   If Copilot has never reviewed the PR, or its latest review is on an older commit (for example after new commits
-   or a rebase), request a review with `gh pr edit <pr> --add-reviewer @copilot`. Poll every minute, for up to 30
-   minutes, until a Copilot review of the head commit exists:
-
-   ```sh
-   gh api "$R/pulls/<pr>/reviews" \
-     -q '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]" and .commit_id == "<headRefOid>")] | last | .body'
-   ```
-
-   If none arrives, re-request once and wait again. Then check this condition against the new review. If the review
-   still does not arrive, or it reports issues or leaves threads unresolved, the condition fails.
-
-5. **No human objections:** `reviewDecision` is not `CHANGES_REQUESTED`.
+5. **No unresolved conversations:** `unresolvedThreads` from the same script is empty.
+6. **No requested changes:** `reviewDecision` is not `CHANGES_REQUESTED`.
 
 **Override:** skip condition 4 only when the invocation explicitly says to skip the review check (for example
 `/merge-pr 42 skip review check`). Never skip the other conditions.
