@@ -24,8 +24,9 @@ gh pr view <pr> --json number,state,isDraft,headRefName,headRefOid,mergeable,mer
 Every condition must hold:
 
 1. **Open and ready:** `state` is `OPEN` and `isDraft` is `false`.
-2. **No conflicts:** `mergeable` is `MERGEABLE` and `mergeStateStatus` is not `DIRTY`. GitHub computes these lazily;
-   if `mergeable` is `UNKNOWN`, wait a few seconds and read it again.
+2. **Up to date with no conflicts:** `mergeable` is `MERGEABLE` and `mergeStateStatus` is neither `DIRTY`
+   (conflicts) nor `BEHIND` (the branch lacks commits from the base branch, so CI and reviews did not see the code
+   that would be merged). GitHub computes these lazily; if either is `UNKNOWN`, wait a few seconds and read it again.
 3. **CI passes:** `gh pr checks <pr>` reports no failing or pending checks. Wait for pending checks with `--watch`.
 4. **Reviews approve the head commit:** following [Pull requests](../../../AGENTS.md#pull-requests), `approvals`
    from `review-status.sh <pr>` has at least the required number of reviewers, and its `head` is `headRefOid`.
