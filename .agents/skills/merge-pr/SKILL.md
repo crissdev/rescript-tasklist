@@ -1,13 +1,14 @@
 ---
 name: merge-pr
-description: Safely squash-merge a pull request once CI passes and Copilot code review recommends approval, then confirm its linked issues closed and clean up its worktree and local branch. Use when asked to merge a PR, or as the final step of the implement-issue skill.
+description: Safely squash-merge a pull request once CI passes and Copilot code review of the head commit recommends approval (requesting that review when it is missing), then confirm its linked issues closed and clean up its worktree and local branch. Use when asked to merge a PR, or as the final step of the implement-issue skill.
 argument-hint: "<PR number> [skip review check]"
 ---
 
 # Merge a pull request
 
 Merge the PR given as the argument, or the PR for the current branch when none is given. Check everything first and
-merge only when every check passes. This skill does not fix problems: when a check fails, report it and stop.
+merge only when every check passes. This skill does not fix problems: apart from requesting a missing Copilot review,
+when a check fails, report it and stop.
 
 In the commands below, `R=repos/<owner>/<repo>` and `<owner>/<repo>` come from `gh repo view --json nameWithOwner -q .nameWithOwner`.
 
@@ -38,6 +39,18 @@ Every condition must hold:
          reviewThreads(first: 100) { nodes { isResolved } } } } }' \
      -q '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved | not)] | length'
    ```
+
+   If Copilot has never reviewed the PR, or its latest review is on an older commit (for example after new commits
+   or a rebase), request a review with `gh pr edit <pr> --add-reviewer @copilot`. Poll every minute, for up to 30
+   minutes, until a Copilot review of the head commit exists:
+
+   ```sh
+   gh api "$R/pulls/<pr>/reviews" \
+     -q '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]" and .commit_id == "<headRefOid>")] | last | .body'
+   ```
+
+   If none arrives, re-request once and wait again. Then check this condition against the new review. If the review
+   still does not arrive, or it reports issues or leaves threads unresolved, the condition fails.
 
 5. **No human objections:** `reviewDecision` is not `CHANGES_REQUESTED`.
 
