@@ -1,0 +1,29 @@
+name: Issue status
+
+# Replaces an issue's status:* label with status:done when it is closed as completed,
+# whether a merged PR closed it or someone closed it by hand. See "Issue status" in AGENTS.md.
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  mark-done:
+    if: github.event.issue.state_reason == 'completed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Replace status label with status:done
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ISSUE: ${{ github.event.issue.number }}
+          LABELS: ${{ toJSON(github.event.issue.labels.*.name) }}
+        run: |
+          remove=$(jq -r '[.[] | select(startswith("status:") and . != "status:done")] | join(",")' <<< "$LABELS")
+          args=(--add-label status:done)
+          if [ -n "$remove" ]; then args+=(--remove-label "$remove"); fi
+          gh issue edit "$ISSUE" "${args[@]}"

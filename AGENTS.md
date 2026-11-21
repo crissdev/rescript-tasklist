@@ -108,8 +108,8 @@ Use stable `data-testid` selectors for E2E assertions whenever possible. Avoid `
 Several agents work on issues in parallel. GitHub already records whether an issue is open or closed, which issues
 block it and which sub-issues it has, so treat those as the single source of truth and do not mirror them in labels.
 `status:*` labels record what GitHub cannot: which issues wait for the user to verify them, which issues the user has
-approved for agents, which issue an agent is working on, and which issues wait on the user. An open issue has at most
-one `status:*` label.
+approved for agents, which issue an agent is working on, which issues wait on the user, and which issues were completed.
+An issue has at most one `status:*` label.
 
 | Label                 | Meaning                                                       | Set by         |
 | --------------------- | ------------------------------------------------------------- | -------------- |
@@ -118,6 +118,7 @@ one `status:*` label.
 | `status:in-progress`  | An agent has claimed it and is working on it                  | Claiming agent |
 | `status:needs-input`  | The claiming agent asked the user a question and waits        | Claiming agent |
 | `status:in-review`    | Work is done and waits for the user to review, merge or close | Claiming agent |
+| `status:done`         | Closed as completed                                           | Workflow       |
 
 Every issue an agent creates starts as `status:needs-triage`. The user verifies it and replaces the label with
 `status:ready`, edits it first, or closes it. An open issue without a `status:*` label was created by the user and is
@@ -144,7 +145,8 @@ stateDiagram-v2
     in_progress --> in_review: work done
     in_review --> in_progress: changes requested
     in_progress --> ready: agent releases
-    in_review --> [*]: PR merged or user closes
+    in_review --> done: PR merged or user closes as completed
+    done --> [*]
 ```
 
 #### Rules
@@ -157,6 +159,10 @@ stateDiagram-v2
 - Work in one claimed issue at a time unless the user assigns several.
 - Record dependencies as GitHub "blocked by" links and sub-issues, not only as text in the issue body.
 - Do not close issues yourself. A merged PR that references the issue closes it, otherwise the user closes it.
+- Do not set `status:done` yourself. The [`Issue status`](.github/workflows/issue-status.yml) workflow replaces the
+  `status:*` label with `status:done` whenever an issue is closed as completed, including by a merged PR.
+- When you merge a PR, including when the user asks you to, check that each issue it references was closed. If the
+  merge did not close an issue, for example because the PR has no closing keyword, tell the user instead of closing it.
 
 #### Claiming an issue
 

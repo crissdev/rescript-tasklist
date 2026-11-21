@@ -42,6 +42,7 @@ Apply labels when the issue is created so later cleanup is not needed.
 | `status:in-progress`  | Claimed by an agent and being worked on                       |
 | `status:needs-input`  | The claiming agent waits on the user for an answer            |
 | `status:in-review`    | Work is done and waits for the user to review, merge or close |
+| `status:done`         | Closed as completed                                           |
 
 ## Area Labels
 
