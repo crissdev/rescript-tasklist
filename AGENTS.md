@@ -189,3 +189,8 @@ stateDiagram-v2
 - Work in the main checkout unless I specify otherwise. Do not implicitly create a new branch or work in a worktree.
 - Automated work, such as the `implement-issue` skill, always runs in a dedicated git worktree on its own branch.
 - Group related changes into separate, focused commits instead of one large commit. Each commit should contain one logical change together with its related documentation and tests, and commits should be ordered so that each one builds on the previous ones.
+
+## Responses
+
+- Follow instructions silently. Don't mention that you followed a rule from AGENTS.md, memories or elsewhere.
+- Mention an instruction only if it stopped you from doing what I asked, or if two instructions conflict.
