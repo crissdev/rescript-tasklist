@@ -12,10 +12,13 @@ flowchart TD
     E --> F[Open ready-for-review PR]
     F --> G[Wait for reviews and CI on current head]
     G --> H{Required approvals,<br/>CI passes, no unresolved threads?}
-    H -- No --> I{Can address feedback<br/>within remaining review rounds?}
-    I -- Yes --> J[Fix and validate feedback;<br/>reply and resolve threads;<br/>commit and push fixes]
+    H -- No --> I{Do feedback fixes require<br/>code changes?}
+    I -- Yes --> AR{Review round remains?}
+    AR -- Yes --> J[Fix and validate;<br/>reply and resolve threads;<br/>commit and push fixes]
     J --> G
-    I -- No --> X[Set status:needs-input;<br/>leave PR and worktree open]
+    AR -- No --> X[Set status:needs-input;<br/>leave PR and worktree open]
+    I -- No --> RR[Reply and resolve threads;<br/>no commit or push]
+    RR --> H
     H -- Yes --> K[File discovered bugs;<br/>set issue status:in-review]
     K --> L{Branch is up to date with main<br/>and has no conflicts?}
     L -- Yes --> M
