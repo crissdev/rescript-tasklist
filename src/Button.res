@@ -1,6 +1,23 @@
-// Styling from https://tailwind-elements.com/docs/standard/components/buttons/
-let make = props =>
+let baseClassName = "inline-flex items-center justify-center gap-actions rounded-control border px-button-x py-button-y text-button cursor-pointer transition focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-focus-ring disabled:opacity-disabled disabled:cursor-not-allowed"
+
+let variantClassName = variant =>
+  switch variant {
+  | #primary => "bg-primary text-ink-inverse border-transparent enabled:hover:bg-primary-hover"
+  | #secondary => "bg-surface text-ink border-border-strong enabled:hover:bg-surface-hover"
+  | #danger => "bg-danger text-ink-inverse border-transparent enabled:hover:bg-danger-hover"
+  }
+
+@react.component
+let make = (~variant=#primary, ~type_=#button, ~onClick=?, ~disabled=?, ~dataTestId=?, ~children) =>
   <button
-    {...props}
-    className="block cursor-pointer bg-rescript-500 py-3 px-4 my-16 mx-auto text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-rescript-600 hover:shadow-lg focus:bg-rescript-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-rescript-700 active:shadow-lg transition duration-150 ease-in-out"
-  />
+    type_={switch type_ {
+    | #button => "button"
+    | #submit => "submit"
+    }}
+    className={`${baseClassName} ${variantClassName(variant)}`}
+    ?onClick
+    ?disabled
+    ?dataTestId
+  >
+    children
+  </button>
