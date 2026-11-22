@@ -23,9 +23,10 @@ flowchart TD
     K --> L{Branch is up to date with main<br/>and has no conflicts?}
     L -- Yes --> M
     L -- No --> N[Rebase onto latest main;<br/>resolve conflicts and validate]
-    N --> R{Review round remains?}
-    R -- Yes --> O[Push branch;<br/>set issue status:in-progress]
-    O --> G
+    N --> O[Push rebased branch with --force-with-lease]
+    O --> R{Review round remains?}
+    R -- Yes --> S[Set issue status:in-progress]
+    S --> G
     R -- No --> X
     N -- Cannot resolve conflicts --> AC[Run git rebase --abort]
     AC --> X
