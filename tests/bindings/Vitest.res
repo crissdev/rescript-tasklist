@@ -34,8 +34,13 @@ module Locator = {
   @send
   external getByLabelText: (t, string, ~options: byLabelTextOptions=?) => t = "getByLabelText"
 
+  type clickOptions = {
+    // Skips the actionability checks, so a disabled element can be clicked.
+    force?: bool,
+  }
+
   @send
-  external click: t => promise<unit> = "click"
+  external click: (t, ~options: clickOptions=?) => promise<unit> = "click"
 
   // Replaces the value of an input or textarea with the given text.
   @send
@@ -76,6 +81,9 @@ module Expect = {
 
   @send
   external toBeVisible: t => promise<unit> = "toBeVisible"
+
+  @send
+  external toBeDisabled: t => promise<unit> = "toBeDisabled"
 
   @send
   external toHaveFocus: t => promise<unit> = "toHaveFocus"
