@@ -45,6 +45,22 @@ describe("Vitest bindings", () => {
     onChange->Expect.mock->Expect.toHaveBeenCalledTimes(1)
   })
 
+  test("toHaveBeenLastCalledWith checks the argument of the last call", async () => {
+    let onSelect = Mock.fn()
+    let select = onSelect->Mock.toFunction
+    let {locator} = await VitestBrowserReact.render(
+      <>
+        <button onClick={_ => select("first")}> {React.string("First")} </button>
+        <button onClick={_ => select("second")}> {React.string("Second")} </button>
+      </>,
+    )
+
+    await locator->Locator.getByRole(#button, ~options={name: "First", exact: true})->Locator.click
+    await locator->Locator.getByRole(#button, ~options={name: "Second", exact: true})->Locator.click
+
+    onSelect->Expect.mock->Expect.toHaveBeenLastCalledWith("second")
+  })
+
   test("a textarea has the textbox role", async () => {
     let {locator} = await VitestBrowserReact.render(<Form onChange={_ => ()} />)
     let notes = locator->Locator.getByRole(#textbox, ~options={name: "Notes", exact: true})
