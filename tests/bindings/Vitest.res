@@ -86,6 +86,9 @@ module Expect = {
   external toBeDisabled: t => promise<unit> = "toBeDisabled"
 
   @send
+  external toBeRequired: t => promise<unit> = "toBeRequired"
+
+  @send
   external toHaveFocus: t => promise<unit> = "toHaveFocus"
 
   @send
@@ -99,11 +102,15 @@ module Expect = {
 
   // Assertions on a mock function. They do not retry, so make them after awaiting the action
   // that calls the mock.
-  type mock
+  type mock<'fn>
 
   @module("vitest")
-  external mock: Mock.t<'fn> => mock = "expect"
+  external mock: Mock.t<'fn> => mock<'fn> = "expect"
 
   @send
-  external toHaveBeenCalledTimes: (mock, int) => unit = "toHaveBeenCalledTimes"
+  external toHaveBeenCalledTimes: (mock<'fn>, int) => unit = "toHaveBeenCalledTimes"
+
+  // Checks the argument of the last call of a mock that takes one argument.
+  @send
+  external toHaveBeenLastCalledWith: (mock<'a => unit>, 'a) => unit = "toHaveBeenLastCalledWith"
 }
