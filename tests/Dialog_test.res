@@ -1,11 +1,11 @@
 open Vitest
 
-@val @scope("document")
-external querySelector: string => nullable<Dom.element> = "querySelector"
+@send external querySelector: (Dom.element, string) => nullable<Dom.element> = "querySelector"
 
 module Reopen = {
   @react.component
   let make = (~onClose) => {
+    let rootRef = React.useRef(Nullable.null)
     let (isOpen, setIsOpen) = React.useState(() => true)
     let (closeEventSeen, setCloseEventSeen) = React.useState(() => false)
     // Closes and opens again in the same commit cycle, before the queued close event.
@@ -16,21 +16,29 @@ module Reopen = {
       None
     }, [isOpen])
 
-    // Records the native close event on the dialog, independent of `onClose`.
+    // Records the native close event on this component's dialog, independent of `onClose`.
     React.useLayoutEffect0(() => {
-      switch querySelector("dialog")->Nullable.toOption {
+      switch rootRef.current->Nullable.toOption {
       | None => None
-      | Some(dialog) =>
-        let handleClose = () => setCloseEventSeen(_ => true)
-        dialog->HtmlDialog.addCloseListener(handleClose)
-        Some(() => dialog->HtmlDialog.removeCloseListener(handleClose))
+      | Some(root) =>
+        switch root->querySelector("dialog")->Nullable.toOption {
+        | None => None
+        | Some(dialog) =>
+          let handleClose = () => setCloseEventSeen(_ => true)
+          dialog->HtmlDialog.addCloseListener(handleClose)
+          Some(() => dialog->HtmlDialog.removeCloseListener(handleClose))
+        }
       }
     })
 
-    <Dialog isOpen onClose title="Edit task">
-      <button type_="button" onClick={_ => setIsOpen(_ => false)}> {React.string("Cycle")} </button>
-      {closeEventSeen ? <h2> {React.string("Close event")} </h2> : React.null}
-    </Dialog>
+    <div ref={ReactDOM.Ref.domRef(rootRef)}>
+      <Dialog isOpen onClose title="Edit task">
+        <button type_="button" onClick={_ => setIsOpen(_ => false)}>
+          {React.string("Cycle")}
+        </button>
+        {closeEventSeen ? <h2> {React.string("Close event")} </h2> : React.null}
+      </Dialog>
+    </div>
   }
 }
 
