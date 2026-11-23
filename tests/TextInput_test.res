@@ -41,6 +41,16 @@ describe("TextInput", () => {
     ->Expect.toHaveValue("Second")
   })
 
+  test("shows the focus ring as soon as it is focused", async () => {
+    let {locator} = await VitestBrowserReact.render(
+      <TextInput label="Title" value="" onChange={_ => ()} />,
+    )
+
+    await UserEvent.keyboard("{Tab}")
+
+    locator->Locator.getByLabelText("Title", ~options={exact: true})->FocusRing.expectVisible
+  })
+
   test("takes keyboard focus", async () => {
     let {locator} = await VitestBrowserReact.render(
       <TextInput label="Title" value="" onChange={_ => ()} />,

@@ -68,8 +68,8 @@ namespace:
 - `--color-*` and `--text-*` both feed `text-*`; `--color-*` and `--outline-width-*` both feed `outline-*`.
 
 Plain Tailwind keywords that carry no design value are used as they are: `border` (1px), `border-dashed`,
-`outline-dashed`, `rounded-full`, `sr-only` and `transition` (Tailwind's default 150 ms,
-`--default-transition-duration`).
+`outline-dashed`, `rounded-full` and `sr-only`. Hover colour changes use `transition-[background-color]`, which keeps
+Tailwind's default 150 ms duration (`--default-transition-duration`) and does not animate the focus ring.
 
 ## Colours
 
@@ -392,7 +392,7 @@ A two-option switch in the header that sets the card style for the whole board.
 Shared by all variants:
 
 - `inline-flex items-center justify-center gap-actions rounded-control border px-button-x py-button-y text-button
-  cursor-pointer transition`.
+  cursor-pointer transition-[background-color]`.
 - Sentence-case labels, no icons required. Default `type` is `button`; the submit button of a form uses `submit`.
 - Every variant has a 1px border (transparent where it isn't visible), so all variants are the same height.
 
@@ -514,6 +514,9 @@ focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:out
 
 - A 2px solid outline, 2px outside the control, in `focus-ring`. The gap keeps the ring visible on the primary and
   danger buttons.
+- The ring is not animated. Tailwind's `transition` and `transition-colors` include `outline-color`, so the ring would
+  fade in from the text colour. On a primary or danger button that colour is white, and the ring would be invisible
+  until the fade ended. Hover transitions use `transition-[background-color]` instead.
 - Outlines, unlike box shadows, stay visible in forced-colours mode, which is why the ring is an outline and not a
   Tailwind `ring-*`.
 - `focus-visible` shows the ring for keyboard focus and always for text fields, but not when a button is clicked.
@@ -529,7 +532,7 @@ focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:out
 | Style switch option | Unselected option: `text-ink`                      |
 | Inputs              | No change                                          |
 
-Hover changes use `transition`. There are no other animations.
+Button hover changes use `transition-[background-color]`. There are no other animations.
 
 ### Dragging a card
 

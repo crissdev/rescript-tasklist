@@ -1,4 +1,4 @@
-let baseClassName = "inline-flex items-center justify-center gap-actions rounded-control border px-button-x py-button-y text-button cursor-pointer transition focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-focus-ring disabled:opacity-disabled disabled:cursor-not-allowed"
+let baseClassName = "inline-flex items-center justify-center gap-actions rounded-control border px-button-x py-button-y text-button cursor-pointer transition-[background-color] focus-visible:outline-focus focus-visible:outline-offset-focus focus-visible:outline-focus-ring disabled:opacity-disabled disabled:cursor-not-allowed"
 
 let variantClassName = variant =>
   switch variant {

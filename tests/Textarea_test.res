@@ -43,6 +43,16 @@ describe("Textarea", () => {
     ->Expect.toHaveAttribute("rows", "2")
   })
 
+  test("shows the focus ring as soon as it is focused", async () => {
+    let {locator} = await VitestBrowserReact.render(
+      <Textarea label="Description" value="" onChange={_ => ()} />,
+    )
+
+    await UserEvent.keyboard("{Tab}")
+
+    locator->Locator.getByLabelText("Description", ~options={exact: true})->FocusRing.expectVisible
+  })
+
   test("takes keyboard focus", async () => {
     let {locator} = await VitestBrowserReact.render(
       <Textarea label="Description" value="" onChange={_ => ()} />,

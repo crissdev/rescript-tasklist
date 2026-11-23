@@ -45,6 +45,11 @@ module Locator = {
   // Replaces the value of an input or textarea with the given text.
   @send
   external fill: (t, string) => promise<unit> = "fill"
+
+  // The matching DOM element. Throws when the locator does not match exactly one element.
+  // https://vitest.dev/api/browser/locators#element
+  @send
+  external element: t => Dom.element = "element"
 }
 
 module UserEvent = {
