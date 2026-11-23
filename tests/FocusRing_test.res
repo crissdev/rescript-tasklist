@@ -18,5 +18,8 @@ describe("FocusRing", () => {
     FocusRing.animatesOutline("all", "0s")->expect->toBe(false)
     FocusRing.animatesOutline("outline-color", "0.15s")->expect->toBe(true)
     FocusRing.animatesOutline("background-color", "0.15s")->expect->toBe(false)
+    // The last entry for the same property wins.
+    FocusRing.animatesOutline("outline-color, outline-color", "0.15s, 0s")->expect->toBe(false)
+    FocusRing.animatesOutline("outline-color, outline-color", "0s, 0.15s")->expect->toBe(true)
   })
 })

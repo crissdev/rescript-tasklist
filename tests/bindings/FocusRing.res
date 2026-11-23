@@ -36,9 +36,9 @@ let animatesOutline = (property, duration) => {
   let names = property->split(",")
   let durations = duration->split(",")
   let count = Array.length(durations)
-  let animates = ref(false)
-  // The shorter list repeats. A ref walks the durations so this stays in plain arithmetic.
+  // The shorter list repeats. The last entry that targets the outline wins, as CSS does.
   let index = ref(0)
+  let winning = ref(None)
   for i in 0 to Array.length(names) - 1 {
     let name = switch names->Array.get(i) {
     | Some(token) => token->trim
@@ -58,11 +58,14 @@ let animatesOutline = (property, duration) => {
       | None => "0s"
       }
     }
-    if (name == "all" || name == "outline" || name == "outline-color") && step != "0s" {
-      animates := true
+    if name == "all" || name == "outline" || name == "outline-color" {
+      winning := Some(step)
     }
   }
-  animates.contents
+  switch winning.contents {
+  | Some(step) => step != "0s"
+  | None => false
+  }
 }
 
 let expectVisible = locator => {
