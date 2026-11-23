@@ -12,6 +12,10 @@ let className = size => {
 let make = (~isOpen, ~onClose, ~title, ~size=#default, ~children) => {
   let dialogRef = React.useRef(Nullable.null)
   let onCloseRef = React.useRef(onClose)
+  let openingId = React.useRef(0)
+  // Opening id passed to `close()`. `close()` queues its close event, so a newer
+  // opening can call `showModal()` before that event runs.
+  let closeRequestedFor = React.useRef(0)
   let titleId = React.useId()
   onCloseRef.current = onClose
 
@@ -19,7 +23,18 @@ let make = (~isOpen, ~onClose, ~title, ~size=#default, ~children) => {
     switch dialogRef.current->Nullable.toOption {
     | None => None
     | Some(dialog) =>
-      let handleClose = () => onCloseRef.current()
+      let handleClose = () => {
+        let requested = closeRequestedFor.current
+        let current = openingId.current
+        closeRequestedFor.current = 0
+        // A queued event from an earlier `close()` does not belong to the opening
+        // now on screen. Escape leaves `closeRequestedFor` at 0 and closes the
+        // current opening, so it still notifies the parent.
+        let belongsToCurrentOpening = requested == 0 || requested == current
+        if belongsToCurrentOpening && !(dialog->HtmlDialog.open_) {
+          onCloseRef.current()
+        }
+      }
       dialog->HtmlDialog.addCloseListener(handleClose)
       Some(() => dialog->HtmlDialog.removeCloseListener(handleClose))
     }
@@ -31,8 +46,10 @@ let make = (~isOpen, ~onClose, ~title, ~size=#default, ~children) => {
     | Some(dialog) =>
       let isDialogOpen = dialog->HtmlDialog.open_
       if isOpen && !isDialogOpen {
+        openingId.current = openingId.current + 1
         dialog->HtmlDialog.showModal
       } else if !isOpen && isDialogOpen {
+        closeRequestedFor.current = openingId.current
         dialog->HtmlDialog.close
       }
     }

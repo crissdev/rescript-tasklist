@@ -1,5 +1,36 @@
 open Vitest
 
+// `dialog.close()` queues its close event. Two macrotasks let that event run before
+// an assertion that it did not call `onClose`.
+@val external setTimeout: (unit => unit, int) => float = "setTimeout"
+
+let waitForCloseEvent = async () => {
+  await Promise.make((resolve, _reject) => {
+    let _id = setTimeout(() => resolve(), 0)
+  })
+  await Promise.make((resolve, _reject) => {
+    let _id = setTimeout(() => resolve(), 0)
+  })
+}
+
+module Reopen = {
+  @react.component
+  let make = (~onClose) => {
+    let (isOpen, setIsOpen) = React.useState(() => true)
+    // Closes and opens again in the same commit cycle, before the queued close event.
+    React.useLayoutEffect1(() => {
+      if !isOpen {
+        setIsOpen(_ => true)
+      }
+      None
+    }, [isOpen])
+
+    <Dialog isOpen onClose title="Edit task">
+      <button type_="button" onClick={_ => setIsOpen(_ => false)}> {React.string("Cycle")} </button>
+    </Dialog>
+  }
+}
+
 describe("Dialog", () => {
   test("is not visible while closed", async () => {
     let {locator} = await VitestBrowserReact.render(
@@ -70,6 +101,20 @@ describe("Dialog", () => {
     ->Locator.getByRole(#dialog, ~options={name: "Edit task", exact: true, includeHidden: true})
     ->Expect.element
     ->Expect.not
+    ->Expect.toBeVisible
+  })
+
+  test("ignores a close event from an earlier opening", async () => {
+    let onClose = Mock.fn()
+    let {locator} = await VitestBrowserReact.render(<Reopen onClose={onClose->Mock.toFunction} />)
+
+    await locator->Locator.getByRole(#button, ~options={name: "Cycle", exact: true})->Locator.click
+    await waitForCloseEvent()
+
+    onClose->Expect.mock->Expect.toHaveBeenCalledTimes(0)
+    await locator
+    ->Locator.getByRole(#dialog, ~options={name: "Edit task", exact: true})
+    ->Expect.element
     ->Expect.toBeVisible
   })
 
