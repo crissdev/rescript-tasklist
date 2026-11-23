@@ -1,22 +1,13 @@
 open Vitest
 
-// `dialog.close()` queues its close event. Two macrotasks let that event run before
-// an assertion that it did not call `onClose`.
-@val external setTimeout: (unit => unit, int) => float = "setTimeout"
-
-let waitForCloseEvent = async () => {
-  await Promise.make((resolve, _reject) => {
-    let _id = setTimeout(() => resolve(), 0)
-  })
-  await Promise.make((resolve, _reject) => {
-    let _id = setTimeout(() => resolve(), 0)
-  })
-}
+@val @scope("document")
+external querySelector: string => nullable<Dom.element> = "querySelector"
 
 module Reopen = {
   @react.component
   let make = (~onClose) => {
     let (isOpen, setIsOpen) = React.useState(() => true)
+    let (closeEventSeen, setCloseEventSeen) = React.useState(() => false)
     // Closes and opens again in the same commit cycle, before the queued close event.
     React.useLayoutEffect1(() => {
       if !isOpen {
@@ -25,8 +16,20 @@ module Reopen = {
       None
     }, [isOpen])
 
+    // Records the native close event on the dialog, independent of `onClose`.
+    React.useLayoutEffect0(() => {
+      switch querySelector("dialog")->Nullable.toOption {
+      | None => None
+      | Some(dialog) =>
+        let handleClose = () => setCloseEventSeen(_ => true)
+        dialog->HtmlDialog.addCloseListener(handleClose)
+        Some(() => dialog->HtmlDialog.removeCloseListener(handleClose))
+      }
+    })
+
     <Dialog isOpen onClose title="Edit task">
       <button type_="button" onClick={_ => setIsOpen(_ => false)}> {React.string("Cycle")} </button>
+      {closeEventSeen ? <h2> {React.string("Close event")} </h2> : React.null}
     </Dialog>
   }
 }
@@ -109,7 +112,10 @@ describe("Dialog", () => {
     let {locator} = await VitestBrowserReact.render(<Reopen onClose={onClose->Mock.toFunction} />)
 
     await locator->Locator.getByRole(#button, ~options={name: "Cycle", exact: true})->Locator.click
-    await waitForCloseEvent()
+    await locator
+    ->Locator.getByRole(#heading, ~options={name: "Close event", exact: true})
+    ->Expect.element
+    ->Expect.toBeVisible
 
     onClose->Expect.mock->Expect.toHaveBeenCalledTimes(0)
     await locator
