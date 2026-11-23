@@ -4,6 +4,8 @@
 type renderResult = {
   // Locator scoped to the container the component is rendered into.
   locator: Vitest.Locator.t,
+  // Re-renders the same container with a new element.
+  rerender: React.element => promise<unit>,
 }
 
 // Rendered components are removed automatically before the next test.
