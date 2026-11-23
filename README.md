@@ -86,6 +86,10 @@ bun run format:check   # fails if any file needs formatting
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs the format check, production build, component tests and e2e tests on pushes to `main` and on pull requests. The Playwright HTML report is uploaded as an artifact when a run fails. [Dependabot](.github/dependabot.yml) checks Bun dependencies and GitHub Actions weekly.
 
+## Automations
+
+Repository workflows, local git hooks and Copilot app automations are documented in [`docs/AUTOMATIONS.md`](docs/AUTOMATIONS.md).
+
 ## Contributing
 
 Coding conventions, including the `.resi` rule that keeps Fast Refresh working, are in [`AGENTS.md`](AGENTS.md).
