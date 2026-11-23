@@ -75,17 +75,12 @@ describe("Button", () => {
       </>,
     )
 
-    await UserEvent.keyboard("{Tab}")
     locator
     ->Locator.getByRole(#button, ~options={name: "Save", exact: true})
     ->FocusRing.expectVisible
-
-    await UserEvent.keyboard("{Tab}")
     locator
     ->Locator.getByRole(#button, ~options={name: "Cancel", exact: true})
     ->FocusRing.expectVisible
-
-    await UserEvent.keyboard("{Tab}")
     locator
     ->Locator.getByRole(#button, ~options={name: "Delete", exact: true})
     ->FocusRing.expectVisible
