@@ -29,19 +29,41 @@ type matcher<'a>
 @send external toEqual: (matcher<'a>, 'a) => unit = "toEqual"
 @send external toBe: (matcher<bool>, bool) => unit = "toBe"
 
-// `all`, `outline` and `outline-color` would animate the ring. A zero duration does not,
-// which is the initial value (`all` / `0s`) on controls that set no transition.
-let animatesOutline = (property, duration) =>
-  if duration == "0s" {
-    false
-  } else {
-    property
-    ->split(",")
-    ->Array.some(token => {
-      let name = token->trim
-      name == "all" || name == "outline" || name == "outline-color"
-    })
+// `all`, `outline` and `outline-color` animate the ring when their duration is not zero.
+// Durations pair with properties by index, and the shorter list repeats, as CSS does.
+// The initial value on a control that sets no transition is `all` / `0s`.
+let animatesOutline = (property, duration) => {
+  let names = property->split(",")
+  let durations = duration->split(",")
+  let count = Array.length(durations)
+  let animates = ref(false)
+  // The shorter list repeats. A ref walks the durations so this stays in plain arithmetic.
+  let index = ref(0)
+  for i in 0 to Array.length(names) - 1 {
+    let name = switch names->Array.get(i) {
+    | Some(token) => token->trim
+    | None => ""
+    }
+    let step = if count == 0 {
+      "0s"
+    } else {
+      let current = index.contents
+      index := if current + 1 == count {
+          0
+        } else {
+          current + 1
+        }
+      switch durations->Array.get(current) {
+      | Some(token) => token->trim
+      | None => "0s"
+      }
+    }
+    if (name == "all" || name == "outline" || name == "outline-color") && step != "0s" {
+      animates := true
+    }
   }
+  animates.contents
+}
 
 let expectVisible = locator => {
   let element = locator->Vitest.Locator.element
