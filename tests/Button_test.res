@@ -66,6 +66,26 @@ describe("Button", () => {
     onClick->Expect.mock->Expect.toHaveBeenCalledTimes(0)
   })
 
+  test("shows the focus ring as soon as it is focused", async () => {
+    let {locator} = await VitestBrowserReact.render(
+      <>
+        <Button variant=#primary> {React.string("Save")} </Button>
+        <Button variant=#secondary> {React.string("Cancel")} </Button>
+        <Button variant=#danger> {React.string("Delete")} </Button>
+      </>,
+    )
+
+    locator
+    ->Locator.getByRole(#button, ~options={name: "Save", exact: true})
+    ->FocusRing.expectVisible
+    locator
+    ->Locator.getByRole(#button, ~options={name: "Cancel", exact: true})
+    ->FocusRing.expectVisible
+    locator
+    ->Locator.getByRole(#button, ~options={name: "Delete", exact: true})
+    ->FocusRing.expectVisible
+  })
+
   test("takes keyboard focus", async () => {
     let {locator} = await VitestBrowserReact.render(<Button> {React.string("Save")} </Button>)
 

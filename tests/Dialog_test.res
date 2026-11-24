@@ -132,6 +132,30 @@ describe("Dialog", () => {
     ->Expect.toBeVisible
   })
 
+  test("shows the focus ring on the control it focuses", async () => {
+    let {locator} = await VitestBrowserReact.render(
+      <Dialog isOpen=true title="Edit task" onClose={_ => ()}>
+        <Button> {React.string("Cancel")} </Button>
+      </Dialog>,
+    )
+
+    locator
+    ->Locator.getByRole(#button, ~options={name: "Cancel", exact: true})
+    ->FocusRing.expectVisible
+  })
+
+  test("shows the focus ring on the dialog when it has nothing else to focus", async () => {
+    let {locator} = await VitestBrowserReact.render(
+      <Dialog isOpen=true title="Delete task?" onClose={_ => ()}>
+        {React.string("Details")}
+      </Dialog>,
+    )
+
+    locator
+    ->Locator.getByRole(#dialog, ~options={name: "Delete task?", exact: true})
+    ->FocusRing.expectVisible
+  })
+
   test("moves keyboard focus to a control inside the dialog", async () => {
     let {locator} = await VitestBrowserReact.render(
       <Dialog isOpen=true title="Edit task" onClose={_ => ()}>
